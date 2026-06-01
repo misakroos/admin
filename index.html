@@ -302,7 +302,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <span style="white-space:nowrap">Credenciales:</span>
       <input id="inp-url" type="text" placeholder="https://TU_PROYECTO.supabase.co">
       <input id="inp-key" type="text" placeholder="Supabase anon key">
-      <input id="inp-claude" type="text" placeholder="Claude API key (opcional)">
+      <input id="inp-claude" type="text" placeholder="Claude API key (ya configurada en Vercel ✓)" disabled style="opacity:.5">
       <button class="btn btn-accent" onclick="conectar()"><i class="ti ti-plug"></i> Conectar</button>
     </div>
 
@@ -1382,11 +1382,11 @@ async function enviarChatBtn() {
     } catch(e) {}
   }
 
-  if (CLAUDE_KEY) {
+  if (true) { // proxy Vercel
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch('https://misakroos-proxy.vercel.app/api/claude', {
         method:'POST',
-        headers:{'Content-Type':'application/json','x-api-key':CLAUDE_KEY,'anthropic-version':'2023-06-01'},
+        headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, system:sistema, messages:chatHistory })
       });
       const d = await res.json();
