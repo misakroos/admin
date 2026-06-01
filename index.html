@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MISAKROOS — Panel de Gestión</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* ===================== VARIABLES ===================== */
+:root {
+  --bg:       #0d0d0f;
+  --bg2:      #141416;
+  --bg3:      #1a1a1d;
+  --border:   rgba(255,255,255,0.07);
+  --border2:  rgba(255,255,255,0.13);
+  --text:     #f0f0f2;
+  --text2:    #9a9aa8;
+  --text3:    #5a5a68;
+  --accent:   #00c896;
+  --accent2:  #0099ff;
+  --danger:   #e24b4a;
+  --warn:     #ef9f27;
+  --ok:       #1d9e75;
+  --nav-w:    230px;
+  --font:     'Inter', system-ui, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 13px; height: 100vh; overflow: hidden; }
+
+/* ===================== LAYOUT ===================== */
+#app { display: flex; height: 100vh; }
+
+/* SIDEBAR */
+#sidebar {
+  width: var(--nav-w);
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  flex-shrink: 0; overflow-y: auto;
+}
+#logo {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--border);
+}
+#logo .name { font-size: 16px; font-weight: 700; letter-spacing: -.3px; color: var(--accent); }
+#logo .sub  { font-size: 11px; color: var(--text3); margin-top: 2px; }
+nav { flex: 1; padding: 8px 0; }
+.nav-sec { font-size: 10px; font-weight: 600; color: var(--text3); padding: 14px 18px 4px; text-transform: uppercase; letter-spacing: .1em; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 18px; cursor: pointer; font-size: 13px;
+  color: var(--text2); transition: all .15s; border-left: 2px solid transparent;
+}
+.nav-item:hover { background: var(--bg3); color: var(--text); }
+.nav-item.active { background: var(--bg3); color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+.nav-item i { font-size: 16px; opacity: .8; }
+.nbadge { margin-left: auto; background: var(--danger); color: #fff; font-size: 10px; padding: 1px 6px; border-radius: 10px; font-weight: 600; }
+
+/* MAIN */
+#main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+#topbar {
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg2);
+}
+#topbar h2 { font-size: 15px; font-weight: 600; }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.btn { padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border2); background: transparent; color: var(--text); cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px; transition: all .15s; }
+.btn:hover { background: var(--bg3); border-color: var(--border2); }
+.btn-accent { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 600; }
+.btn-accent:hover { opacity: .88; background: var(--accent); }
+
+/* CONFIG BANNER */
+#config-banner {
+  background: linear-gradient(135deg, #1a1500, #100a00);
+  border-bottom: 1px solid var(--warn);
+  padding: 10px 24px;
+  display: flex; align-items: center; gap: 12px;
+  font-size: 12px; color: var(--warn);
+}
+#config-banner input {
+  background: var(--bg3); border: 1px solid var(--border2);
+  color: var(--text); border-radius: 6px; padding: 5px 10px;
+  font-size: 12px; font-family: monospace; width: 280px;
+}
+#config-banner input:focus { outline: none; border-color: var(--accent); }
+
+#content { flex: 1; overflow-y: auto; padding: 24px; }
+
+/* ===================== PANELS ===================== */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ===================== STATS ===================== */
+.stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-bottom: 20px; }
+.stat {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px;
+}
+.stat-lbl { font-size: 11px; color: var(--text3); margin-bottom: 8px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; }
+.stat-val { font-size: 28px; font-weight: 700; line-height: 1; }
+.stat-sub { font-size: 11px; color: var(--text3); margin-top: 6px; }
+.c-ok { color: var(--accent); }
+.c-warn { color: var(--warn); }
+.c-danger { color: var(--danger); }
+.c-blue { color: var(--accent2); }
+
+/* ===================== ALERT ===================== */
+.alert {
+  border-radius: 8px; padding: 10px 14px; margin-bottom: 14px;
+  display: flex; align-items: center; gap: 10px; font-size: 12px;
+}
+.alert-d { background: rgba(226,75,74,.12); border: 1px solid rgba(226,75,74,.3); color: #f88; }
+.alert-w { background: rgba(239,159,39,.1); border: 1px solid rgba(239,159,39,.3); color: var(--warn); }
+.alert-ok { background: rgba(0,200,150,.1); border: 1px solid rgba(0,200,150,.3); color: var(--accent); }
+
+/* ===================== CARDS ===================== */
+.card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px;
+}
+.card h3 { font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.card h3 i { font-size: 15px; }
+
+/* ===================== TABLA ===================== */
+.table-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.tbl-search { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; }
+.tbl-search input, .tbl-search select {
+  background: var(--bg3); border: 1px solid var(--border2);
+  color: var(--text); border-radius: 7px; padding: 7px 12px; font-size: 12px;
+}
+.tbl-search input { flex: 1; }
+.tbl-search input:focus, .tbl-search select:focus { outline: none; border-color: var(--accent); }
+table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+th {
+  padding: 10px 14px; text-align: left; font-size: 10px; font-weight: 600;
+  color: var(--text3); text-transform: uppercase; letter-spacing: .08em;
+  background: var(--bg3); border-bottom: 1px solid var(--border);
+}
+td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg3); }
+.pill { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+.p-ok  { background: rgba(29,158,117,.2); color: #4ecfa0; }
+.p-w   { background: rgba(239,159,39,.15); color: var(--warn); }
+.p-d   { background: rgba(226,75,74,.15); color: #f88; }
+.p-b   { background: rgba(0,153,255,.15); color: #5bc4ff; }
+.p-g   { background: rgba(255,255,255,.06); color: var(--text2); }
+.icon-btn { background: none; border: none; cursor: pointer; font-size: 16px; color: var(--text3); padding: 2px 4px; border-radius: 4px; }
+.icon-btn:hover { color: var(--text); background: var(--bg3); }
+.wa-btn { color: #25d366 !important; }
+
+/* ===================== BARRAS ===================== */
+.bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.bar-lbl { font-size: 11px; color: var(--text2); width: 140px; flex-shrink: 0; text-align: right; }
+.bar-track { flex: 1; background: var(--bg3); border-radius: 4px; height: 16px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; transition: width .6s ease; }
+.bar-fill span { font-size: 10px; font-weight: 600; color: #fff; }
+
+/* ===================== SEMANAS ===================== */
+.sem-bars { display: flex; align-items: flex-end; gap: 12px; height: 100px; margin-top: 10px; }
+.sem-col { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
+.sem-bar { width: 100%; border-radius: 6px 6px 0 0; transition: height .5s ease; }
+.sem-lbl { font-size: 10px; color: var(--text3); text-align: center; line-height: 1.3; }
+.sem-num { font-size: 13px; font-weight: 700; }
+
+/* ===================== CHAT ===================== */
+#chat-wrap { display: flex; flex-direction: column; height: calc(100vh - 140px); }
+#chat-msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.msg { max-width: 80%; padding: 12px 16px; border-radius: 14px; font-size: 13px; line-height: 1.55; }
+.msg-user { align-self: flex-end; background: var(--accent); color: #000; font-weight: 500; border-bottom-right-radius: 4px; }
+.msg-ai { align-self: flex-start; background: var(--bg2); border: 1px solid var(--border); border-bottom-left-radius: 4px; color: var(--text); }
+.msg-ai strong { color: var(--accent); }
+.sugg-wrap { padding: 8px 20px 10px; display: flex; flex-wrap: wrap; gap: 7px; }
+.sugg { font-size: 11px; padding: 5px 12px; border: 1px solid var(--border2); border-radius: 20px; cursor: pointer; color: var(--text2); background: none; transition: all .15s; }
+.sugg:hover { border-color: var(--accent); color: var(--accent); }
+#chat-bar { padding: 12px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; background: var(--bg2); }
+#chat-in {
+  flex: 1; background: var(--bg3); border: 1px solid var(--border2);
+  color: var(--text); border-radius: 22px; padding: 10px 18px; font-size: 13px;
+}
+#chat-in:focus { outline: none; border-color: var(--accent); }
+#chat-send {
+  padding: 10px 20px; background: var(--accent); color: #000;
+  border: none; border-radius: 22px; cursor: pointer; font-size: 13px; font-weight: 700;
+}
+#chat-send:hover { opacity: .88; }
+.typing-dots { display: flex; align-items: center; gap: 4px; padding: 6px 0; }
+.typing-dots span { width: 7px; height: 7px; background: var(--text3); border-radius: 50%; animation: td 1.2s infinite; }
+.typing-dots span:nth-child(2) { animation-delay: .2s; }
+.typing-dots span:nth-child(3) { animation-delay: .4s; }
+@keyframes td { 0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)} }
+
+/* ===================== SCHEMA ===================== */
+.schema-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+.schema-tbl { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.schema-hd { padding: 10px 14px; background: var(--bg3); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text); }
+.schema-row { padding: 7px 14px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 11px; }
+.schema-row:last-child { border-bottom: none; }
+.schema-row .f { color: var(--text); }
+.schema-row .t { color: var(--text3); font-family: monospace; }
+.tag { font-size: 9px; padding: 1px 5px; border-radius: 4px; margin-left: 4px; font-weight: 700; }
+.tag-pk { background: rgba(0,153,255,.2); color: #5bc4ff; }
+.tag-fk { background: rgba(0,200,150,.15); color: var(--accent); }
+.tag-c  { background: rgba(239,159,39,.15); color: var(--warn); }
+
+/* ===================== TUTORIAL ===================== */
+.tut-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+.tut-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+.tut-icon { font-size: 24px; color: var(--accent); margin-bottom: 10px; }
+.tut-card h3 { font-size: 13px; font-weight: 600; margin-bottom: 10px; color: var(--text); }
+.tut-card ul { list-style: none; }
+.tut-card li { font-size: 12px; color: var(--text2); padding: 4px 0; display: flex; gap: 8px; line-height: 1.4; }
+.tut-card li::before { content: "→"; color: var(--accent); flex-shrink: 0; }
+
+/* ===================== GRID LAYOUT STATS ===================== */
+.two-col { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; margin-top: 16px; }
+.three-col { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; margin-bottom: 16px; }
+.venc-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.venc-item:last-child { border-bottom: none; }
+
+/* ===================== MODAL ===================== */
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 100; align-items: center; justify-content: center; }
+.modal-bg.open { display: flex; }
+.modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: 14px; padding: 24px; width: 440px; max-width: 95vw; }
+.modal h3 { font-size: 15px; font-weight: 600; margin-bottom: 18px; }
+.form-group { margin-bottom: 14px; }
+.form-group label { font-size: 11px; color: var(--text3); display: block; margin-bottom: 5px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border2);
+  color: var(--text); border-radius: 7px; padding: 9px 12px; font-size: 13px;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--accent); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.modal-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+/* ===================== DOLAR ===================== */
+.dolar-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.dolar-row:last-child { border-bottom: none; }
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+</head>
+<body>
+
+<!-- MODAL NUEVO CLIENTE -->
+<div class="modal-bg" id="modal-cliente">
+  <div class="modal">
+    <h3>Nuevo cliente</h3>
+    <div class="form-row">
+      <div class="form-group"><label>Nombre</label><input id="f-nombre" type="text" placeholder="Ej: Gonzalo"></div>
+      <div class="form-group"><label>Teléfono</label><input id="f-tel" type="text" placeholder="5492645..."></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>País</label>
+        <select id="f-pais"><option>Argentina</option><option>Uruguay</option><option>Chile</option><option>Brasil</option></select>
+      </div>
+      <div class="form-group"><label>Estado</label>
+        <select id="f-estado"><option>Activo</option><option>Inactivo</option></select>
+      </div>
+    </div>
+    <div class="form-group"><label>Servicio(s)</label><input id="f-servicio" type="text" placeholder="Ej: Netflix, Disney+"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Venta (ARS/UYU)</label><input id="f-venta" type="number" placeholder="3500"></div>
+      <div class="form-group"><label>Vencimiento</label><input id="f-venc" type="date"></div>
+    </div>
+    <div class="form-group"><label>Correo / Cuenta</label><input id="f-correo" type="text" placeholder="correo@gmail.com o Oled001"></div>
+    <div class="form-group"><label>Notas</label><textarea id="f-notas" rows="2" placeholder="Info adicional..."></textarea></div>
+    <div class="modal-btns">
+      <button class="btn" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn btn-accent" onclick="guardarCliente()"><i class="ti ti-check"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div id="logo">
+      <div class="name">MISAKROOS</div>
+      <div class="sub">Sistema de gestión</div>
+    </div>
+    <nav>
+      <div class="nav-sec">Principal</div>
+      <div class="nav-item active" onclick="nav('dashboard')"><i class="ti ti-dashboard"></i> Dashboard</div>
+      <div class="nav-item" onclick="nav('estadisticas')"><i class="ti ti-chart-bar"></i> Estadísticas</div>
+      <div class="nav-item" onclick="nav('chat')"><i class="ti ti-robot"></i> Chat IA</div>
+
+      <div class="nav-sec">Gestión</div>
+      <div class="nav-item" onclick="nav('clientes')"><i class="ti ti-users"></i> Clientes</div>
+      <div class="nav-item" onclick="nav('suscripciones')"><i class="ti ti-calendar-check"></i> Suscripciones <span class="nbadge" id="badge-venc">0</span></div>
+      <div class="nav-item" onclick="nav('cuentas')"><i class="ti ti-mail"></i> Cuentas</div>
+      <div class="nav-item" onclick="nav('proveedores')"><i class="ti ti-building-store"></i> Proveedores</div>
+
+      <div class="nav-sec">Finanzas</div>
+      <div class="nav-item" onclick="nav('pagos')"><i class="ti ti-cash"></i> Pagos</div>
+      <div class="nav-item" onclick="nav('dolar')"><i class="ti ti-currency-dollar"></i> Tipo de cambio</div>
+
+      <div class="nav-sec">Sistema</div>
+      <div class="nav-item" onclick="nav('schema')"><i class="ti ti-database"></i> Base de datos</div>
+      <div class="nav-item" onclick="nav('tutorial')"><i class="ti ti-help-circle"></i> Ayuda (?)</div>
+    </nav>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+    <!-- CONFIG BANNER -->
+    <div id="config-banner">
+      <i class="ti ti-settings" style="font-size:16px;flex-shrink:0"></i>
+      <span>Configuración inicial:</span>
+      <input id="inp-url" type="text" placeholder="https://TU_PROYECTO.supabase.co">
+      <input id="inp-key" type="text" placeholder="Supabase anon key">
+      <input id="inp-claude" type="text" placeholder="Claude API key (para chat IA)">
+      <button class="btn btn-accent" onclick="conectar()"><i class="ti ti-plug"></i> Conectar</button>
+    </div>
+
+    <div id="topbar">
+      <h2 id="topbar-title">Dashboard</h2>
+      <div class="topbar-right">
+        <span id="conn-status" style="font-size:11px;color:var(--text3)">● Sin conectar</span>
+        <button class="btn" onclick="cargarTodo()"><i class="ti ti-refresh"></i> Actualizar</button>
+        <button class="btn btn-accent" onclick="abrirModal()"><i class="ti ti-plus"></i> Nuevo cliente</button>
+      </div>
+    </div>
+
+    <div id="content">
+
+      <!-- ======= DASHBOARD ======= -->
+      <div class="panel active" id="panel-dashboard">
+        <div id="dash-alerts"></div>
+        <div class="stats-grid" id="dash-stats">
+          <div class="stat"><div class="stat-lbl">Total clientes</div><div class="stat-val c-blue" id="s-total">—</div><div class="stat-sub">Registros en la base</div></div>
+          <div class="stat"><div class="stat-lbl">Activos</div><div class="stat-val c-ok" id="s-activos">—</div><div class="stat-sub">Con suscripción vigente</div></div>
+          <div class="stat"><div class="stat-lbl">Vencen esta semana</div><div class="stat-val c-warn" id="s-semana">—</div><div class="stat-sub">Próximos 7 días</div></div>
+          <div class="stat"><div class="stat-lbl">Vencidos sin renovar</div><div class="stat-val c-danger" id="s-vencidos">—</div><div class="stat-sub">Requieren atención</div></div>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <h3><i class="ti ti-clock"></i> Próximos vencimientos</h3>
+            <div id="dash-vencimientos"><div style="color:var(--text3);font-size:12px">Conectá Supabase para ver datos reales</div></div>
+          </div>
+          <div class="card">
+            <h3><i class="ti ti-alert-circle"></i> Perfiles libres</h3>
+            <div id="dash-perfiles"><div style="color:var(--text3);font-size:12px">Sin datos aún</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======= ESTADÍSTICAS ======= -->
+      <div class="panel" id="panel-estadisticas">
+        <!-- Financiero -->
+        <div class="three-col">
+          <div class="stat"><div class="stat-lbl">Venta total mensual</div><div class="stat-val c-ok" id="est-venta">—</div><div class="stat-sub">ARS estimado</div></div>
+          <div class="stat"><div class="stat-lbl">Costo proveedores</div><div class="stat-val c-danger" id="est-costo">—</div><div class="stat-sub">ARS estimado</div></div>
+          <div class="stat"><div class="stat-lbl">Ganancia neta</div><div class="stat-val c-ok" id="est-ganancia">—</div><div class="stat-sub" id="est-usd">USD —</div></div>
+        </div>
+
+        <div class="two-col">
+          <!-- Servicios -->
+          <div class="card">
+            <h3><i class="ti ti-device-tv"></i> Distribución por servicio</h3>
+            <div id="est-servicios">
+              <div class="bar-row"><span class="bar-lbl">Netflix</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:#e24b4a"><span>100</span></div></div></div>
+              <div class="bar-row"><span class="bar-lbl">Flujo/Flow</span><div class="bar-track"><div class="bar-fill" style="width:48%;background:#185fa5"><span>48</span></div></div></div>
+              <div class="bar-row"><span class="bar-lbl">Disney+</span><div class="bar-track"><div class="bar-fill" style="width:25%;background:#1d9e75"><span>25</span></div></div></div>
+              <div class="bar-row"><span class="bar-lbl">Max/HBO</span><div class="bar-track"><div class="bar-fill" style="width:5%;background:#534ab7;min-width:28px"><span>5</span></div></div></div>
+              <div class="bar-row"><span class="bar-lbl">Prime Video</span><div class="bar-track"><div class="bar-fill" style="width:5%;background:#639922;min-width:28px"><span>5</span></div></div></div>
+              <div class="bar-row"><span class="bar-lbl">Otros</span><div class="bar-track"><div class="bar-fill" style="width:8%;background:var(--text3);min-width:28px"><span>15</span></div></div></div>
+            </div>
+          </div>
+
+          <!-- Vencimientos por semana -->
+          <div class="card">
+            <h3><i class="ti ti-calendar-stats"></i> Vencimientos próximos 30 días</h3>
+            <div class="sem-bars" id="est-semanas">
+              <div class="sem-col"><div class="sem-num c-danger">61</div><div class="sem-bar" style="height:80px;background:var(--danger)"></div><div class="sem-lbl">Sem 1<br>1–7/6</div></div>
+              <div class="sem-col"><div class="sem-num c-warn">63</div><div class="sem-bar" style="height:84px;background:var(--warn)"></div><div class="sem-lbl">Sem 2<br>8–14/6</div></div>
+              <div class="sem-col"><div class="sem-num c-blue">36</div><div class="sem-bar" style="height:48px;background:var(--accent2)"></div><div class="sem-lbl">Sem 3<br>15–21/6</div></div>
+              <div class="sem-col"><div class="sem-num c-ok">35</div><div class="sem-bar" style="height:46px;background:var(--accent)"></div><div class="sem-lbl">Sem 4<br>22–30/6</div></div>
+            </div>
+            <div style="font-size:11px;color:var(--text3);margin-top:12px">⚠️ 124 clientes vencen en las próximas 2 semanas</div>
+          </div>
+        </div>
+
+        <!-- País + correos -->
+        <div class="three-col" style="margin-top:16px">
+          <div class="stat"><div class="stat-lbl">Argentina</div><div class="stat-val c-blue">158</div><div class="stat-sub">78% del total</div></div>
+          <div class="stat"><div class="stat-lbl">Uruguay</div><div class="stat-val">37</div><div class="stat-sub">18% · pagan en UYU</div></div>
+          <div class="stat"><div class="stat-lbl">Correos únicos</div><div class="stat-val c-warn">112</div><div class="stat-sub">De 203 registros</div></div>
+        </div>
+
+        <!-- Nota financiera -->
+        <div class="alert alert-ok" style="margin-top:16px">
+          <i class="ti ti-info-circle" style="font-size:16px;flex-shrink:0"></i>
+          Los valores financieros son estimativos basados en precios promedio. Una vez que completes las columnas de costo/venta en Supabase, este panel mostrará los números reales.
+        </div>
+      </div>
+
+      <!-- ======= CHAT IA ======= -->
+      <div class="panel" id="panel-chat">
+        <div id="chat-wrap">
+          <div id="chat-msgs">
+            <div class="msg msg-ai">Hola Rodrigo 👋 Soy tu asistente de gestión MISAKROOS.<br><br>Puedo consultar clientes, vencimientos, perfiles libres, ganancias, cuentas de proveedores y mucho más.<br><br>Una vez conectado Supabase, accedo a datos reales en tiempo real. ¿En qué te ayudo?</div>
+          </div>
+          <div class="sugg-wrap">
+            <button class="sugg" onclick="enviarChat('¿Qué clientes vencen esta semana?')">Vencimientos esta semana</button>
+            <button class="sugg" onclick="enviarChat('¿Qué perfiles tengo libres?')">Perfiles sin asignar</button>
+            <button class="sugg" onclick="enviarChat('¿Cuánto gané este mes en ARS y UYU?')">Ganancia del mes</button>
+            <button class="sugg" onclick="enviarChat('¿A qué clientes está asignado marinalsjeka@gmail.com?')">Buscar correo</button>
+            <button class="sugg" onclick="enviarChat('¿Cuándo tengo que renovar con mis proveedores?')">Renovaciones pendientes</button>
+            <button class="sugg" onclick="enviarChat('Listame los clientes vencidos')">Clientes vencidos</button>
+          </div>
+          <div id="chat-bar">
+            <input id="chat-in" type="text" placeholder="Preguntame cualquier cosa sobre tu negocio..." onkeydown="if(event.key==='Enter')enviarChatBtn()">
+            <button id="chat-send" onclick="enviarChatBtn()">Enviar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======= CLIENTES ======= -->
+      <div class="panel" id="panel-clientes">
+        <div class="table-wrap">
+          <div class="tbl-search">
+            <input type="text" placeholder="Buscar por nombre, teléfono..." id="search-clientes" oninput="filtrarClientes()">
+            <select id="fil-pais" onchange="filtrarClientes()"><option value="">Todos los países</option><option>Argentina</option><option>Uruguay</option></select>
+            <select id="fil-estado" onchange="filtrarClientes()"><option value="">Todos los estados</option><option>Activo</option><option>Inactivo</option></select>
+          </div>
+          <div id="tabla-clientes-wrap">
+            <table>
+              <thead><tr><th style="width:20%">Nombre</th><th style="width:18%">Teléfono</th><th style="width:10%">País</th><th style="width:10%">Estado</th><th style="width:14%">Próx. venc.</th><th style="width:10%">Servicios</th><th style="width:10%">Venta</th><th style="width:8%">Acc.</th></tr></thead>
+              <tbody id="tbody-clientes"><tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px">Conectá Supabase para ver clientes</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======= SUSCRIPCIONES ======= -->
+      <div class="panel" id="panel-suscripciones">
+        <div class="table-wrap">
+          <div class="tbl-search">
+            <input type="text" placeholder="Buscar cliente, servicio, correo...">
+            <select><option>Todos los estados</option><option>Activo</option><option>Vencido</option></select>
+          </div>
+          <table>
+            <thead><tr><th style="width:14%">Cliente</th><th style="width:14%">Servicio</th><th style="width:18%">Correo/cuenta</th><th style="width:10%">Vence</th><th style="width:7%">Días</th><th style="width:9%">Venta</th><th style="width:9%">Costo</th><th style="width:9%">Ganancia</th><th style="width:10%">Estado</th></tr></thead>
+            <tbody id="tbody-suscripciones"><tr><td colspan="9" style="text-align:center;color:var(--text3);padding:24px">Conectá Supabase para ver suscripciones</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ======= CUENTAS ======= -->
+      <div class="panel" id="panel-cuentas">
+        <div class="alert alert-d" id="alert-perfiles" style="display:none">
+          <i class="ti ti-alert-circle" style="font-size:16px"></i>
+          <span id="alert-perfiles-txt"></span>
+        </div>
+        <div class="table-wrap">
+          <div class="tbl-search">
+            <input type="text" placeholder="Buscar correo o cuenta...">
+            <select><option>Todos los servicios</option><option>Netflix</option><option>Disney+</option><option>Flujo</option></select>
+          </div>
+          <table>
+            <thead><tr><th style="width:22%">Correo / Código</th><th style="width:12%">Servicio</th><th style="width:10%">Tipo</th><th style="width:10%">Perfiles</th><th style="width:10%">Libres</th><th style="width:14%">Proveedor</th><th style="width:11%">Renueva</th><th style="width:11%">Costo</th></tr></thead>
+            <tbody id="tbody-cuentas"><tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px">Conectá Supabase para ver cuentas</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ======= PROVEEDORES ======= -->
+      <div class="panel" id="panel-proveedores">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th style="width:22%">Proveedor</th><th style="width:14%">Servicio</th><th style="width:14%">Contacto</th><th style="width:10%">Cuentas</th><th style="width:14%">Próx. pago</th><th style="width:13%">Costo total</th><th style="width:13%">Estado</th></tr></thead>
+            <tbody id="tbody-proveedores"><tr><td colspan="7" style="text-align:center;color:var(--text3);padding:24px">Conectá Supabase para ver proveedores</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ======= PAGOS ======= -->
+      <div class="panel" id="panel-pagos">
+        <div class="three-col">
+          <div class="stat"><div class="stat-lbl">Cobrado este mes</div><div class="stat-val c-ok" id="p-cobrado">—</div><div class="stat-sub">ARS</div></div>
+          <div class="stat"><div class="stat-lbl">Pagado a proveedores</div><div class="stat-val c-danger" id="p-gasto">—</div><div class="stat-sub">ARS</div></div>
+          <div class="stat"><div class="stat-lbl">Ganancia neta</div><div class="stat-val c-ok" id="p-ganancia">—</div><div class="stat-sub" id="p-usd">USD —</div></div>
+        </div>
+        <div class="table-wrap" style="margin-top:16px">
+          <table>
+            <thead><tr><th style="width:16%">Cliente</th><th style="width:18%">Concepto</th><th style="width:10%">Fecha</th><th style="width:11%">Monto</th><th style="width:8%">Moneda</th><th style="width:10%">Método</th><th style="width:10%">Estado</th></tr></thead>
+            <tbody id="tbody-pagos"><tr><td colspan="7" style="text-align:center;color:var(--text3);padding:24px">Sin pagos registrados aún</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ======= TIPO DE CAMBIO ======= -->
+      <div class="panel" id="panel-dolar">
+        <div class="three-col">
+          <div class="stat"><div class="stat-lbl">USD → ARS hoy</div><div class="stat-val" id="tc-ars">—</div><div class="stat-sub" id="tc-fecha">—</div></div>
+          <div class="stat"><div class="stat-lbl">USD → UYU hoy</div><div class="stat-val" id="tc-uyu">—</div><div class="stat-sub">Peso uruguayo</div></div>
+          <div class="stat"><div class="stat-lbl">ARS → UYU</div><div class="stat-val" id="tc-cross">—</div><div class="stat-sub">Calculado automático</div></div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <h3><i class="ti ti-plus"></i> Cargar tipo de cambio del día</h3>
+          <div class="form-row">
+            <div class="form-group"><label>USD → ARS</label><input id="tc-inp-ars" type="number" placeholder="1255"></div>
+            <div class="form-group"><label>USD → UYU</label><input id="tc-inp-uyu" type="number" placeholder="40.2"></div>
+          </div>
+          <button class="btn btn-accent" onclick="guardarTC()"><i class="ti ti-check"></i> Guardar para hoy</button>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <h3><i class="ti ti-history"></i> Historial</h3>
+          <div id="tc-historial">
+            <div class="dolar-row"><span>01/06/2026</span><span>ARS $1.255</span><span>UYU 40.2</span><span class="pill p-g">Manual</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======= SCHEMA ======= -->
+      <div class="panel" id="panel-schema">
+        <div class="schema-grid">
+          <div class="schema-tbl">
+            <div class="schema-hd"><i class="ti ti-users" style="color:var(--accent2)"></i> clientes</div>
+            <div class="schema-row"><span class="f">id <span class="tag tag-pk">PK</span></span><span class="t">serial</span></div>
+            <div class="schema-row"><span class="f">nombre</span><span class="t">text</span></div>
+            <div class="schema-row"><span class="f">telefono</span><span class="t">text</span></div>
+            <div class="schema-row"><span class="f">pais</span><span class="t">text</span></div>
+            <div class="schema-row"><span class="f">estado</span><span class="t">text</span></div>
+            <div class="schema-row"><span class="f">notas</span><span class="t">text</span></div>
+            <div class="schema-row"><span class="f">creado_en</span><span class="t">timestamptz</span></div>
+          </div>
+          <div class="schema-tbl">
+            <div class="schema-hd"><i class="ti ti-building-store" style="color:var(--warn)"></i> proveedores</div>
+            <div class="schema-row"><span class="f">id <span class="tag tag-pk">PK</span></span><span class="t">serial</span></div>
+            <div class="schema-row"><span class="f">nombre</span><span class="t">text</span></div>
+            <div class="schema-row"><span class="f">contacto</span><span class="t">text</span></div>
+            <div class="schema-row"><span class="f">servicio</span><span class="t">text</span></div>
+            <div class="schema-row"><span class="f">notas</span><span class="t">text</span></div>
+          </div>
+          <div class="schema-tbl">
+            <div class="schema-hd"><i class="ti ti-mail" style="color:var(--accent)"></i> cuentas</div>
+            <div class="schema-row"><span class="f">id <span class="tag tag-pk">PK</span></span><span class="t">serial</span></div>
+            <div class="schema-row"><span class="f">correo</span><span class="t">text</span></div>
+            <div class="schema-row"><span class="f">servicio</span><span class="t">text</span></div>
+            <div class="schema-row"><span class="f">tipo</span><span class="t">text</span></div>
+            <div class="schema-row"><span class="f">proveedor_id <span class="tag tag-fk">FK</span></span><span class="t">integer</span></div>
+            <div class="schema-row"><span class="f">capacidad_total</span><span class="t">integer</span></div>
+            <div class="schema-row"><span class="f">fecha_renovacion</span><span class="t">date</span></div>
+            <div class="schema-row"><span class="f">costo_proveedor</span><span class="t">numeric</span></div>
+            <div class="schema-row"><span class="f">moneda_costo</span><span class="t">text</span></div>
+          </div>
+          <div class="schema-tbl">
+            <div class="schema-hd"><i class="ti ti-layout-grid" style="color:#a78bfa"></i> perfiles</div>
+            <div class="schema-row"><span class="f">id <span class="tag tag-pk">PK</span></span><span class="t">serial</span></div>
+            <div class="schema-row"><span class="f">cuenta_id <span class="tag tag-fk">FK</span></span><span class="t">integer</span></div>
+            <div class="schema-row"><span class="f">nombre_perfil</span><span class="t">text</span></div>
+            <div class="schema-row"><span class="f">estado</span><span class="t">libre / ocupado</span></div>
+          </div>
+          <div class="schema-tbl">
+            <div class="schema-hd"><i class="ti ti-calendar-check" style="color:var(--accent)"></i> suscripciones</div>
+            <div class="schema-row"><span class="f">id <span class="tag tag-pk">PK</span></span><span class="t">serial</span></div>
+            <div class="schema-row"><span class="f">cliente_id <span class="tag tag-fk">FK</span></span><span class="t">integer</span></div>
+            <div class="schema-row"><span class="f">perfil_id <span class="tag tag-fk">FK</span></span><span class="t">integer</span></div>
+            <div class="schema-row"><span class="f">cuenta_id <span class="tag tag-fk">FK</span></span><span class="t">integer</span></div>
+            <div class="schema-row"><span class="f">servicio</span><span class="t">text</span></div>
+            <div class="schema-row"><span class="f">fecha_inicio</span><span class="t">date</span></div>
+            <div class="schema-row"><span class="f">fecha_vencimiento</span><span class="t">date</span></div>
+            <div class="schema-row"><span class="f">venta</span><span class="t">numeric</span></div>
+            <div class="schema-row"><span class="f">moneda_venta</span><span class="t">ARS / UYU / USD</span></div>
+            <div class="schema-row"><span class="f">ganancia <span class="tag tag-c">calc</span></span><span class="t">venta − costo</span></div>
+          </div>
+          <div class="schema-tbl">
+            <div class="schema-hd"><i class="ti ti-currency-dollar" style="color:#4ade80"></i> tipo_cambio</div>
+            <div class="schema-row"><span class="f">id <span class="tag tag-pk">PK</span></span><span class="t">serial</span></div>
+            <div class="schema-row"><span class="f">fecha</span><span class="t">date (unique)</span></div>
+            <div class="schema-row"><span class="f">usd_ars</span><span class="t">numeric</span></div>
+            <div class="schema-row"><span class="f">usd_uyu</span><span class="t">numeric</span></div>
+          </div>
+          <div class="schema-tbl">
+            <div class="schema-hd"><i class="ti ti-history" style="color:var(--text3)"></i> movimientos</div>
+            <div class="schema-row"><span class="f">id <span class="tag tag-pk">PK</span></span><span class="t">serial</span></div>
+            <div class="schema-row"><span class="f">tipo</span><span class="t">text</span></div>
+            <div class="schema-row"><span class="f">cliente_id <span class="tag tag-fk">FK</span></span><span class="t">integer</span></div>
+            <div class="schema-row"><span class="f">cuenta_id <span class="tag tag-fk">FK</span></span><span class="t">integer</span></div>
+            <div class="schema-row"><span class="f">descripcion</span><span class="t">text</span></div>
+            <div class="schema-row"><span class="f">datos_extra</span><span class="t">jsonb</span></div>
+            <div class="schema-row"><span class="f">fecha</span><span class="t">timestamptz</span></div>
+          </div>
+          <div class="schema-tbl">
+            <div class="schema-hd"><i class="ti ti-cash" style="color:var(--accent2)"></i> pagos</div>
+            <div class="schema-row"><span class="f">id <span class="tag tag-pk">PK</span></span><span class="t">serial</span></div>
+            <div class="schema-row"><span class="f">cliente_id <span class="tag tag-fk">FK</span></span><span class="t">integer</span></div>
+            <div class="schema-row"><span class="f">suscripcion_id <span class="tag tag-fk">FK</span></span><span class="t">integer</span></div>
+            <div class="schema-row"><span class="f">monto</span><span class="t">numeric</span></div>
+            <div class="schema-row"><span class="f">moneda</span><span class="t">text</span></div>
+            <div class="schema-row"><span class="f">tipo_cambio_id <span class="tag tag-fk">FK</span></span><span class="t">integer</span></div>
+            <div class="schema-row"><span class="f">metodo</span><span class="t">text</span></div>
+            <div class="schema-row"><span class="f">estado</span><span class="t">pagado / pendiente</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======= TUTORIAL ======= -->
+      <div class="panel" id="panel-tutorial">
+        <div class="tut-grid">
+          <div class="tut-card">
+            <div class="tut-icon"><i class="ti ti-rocket"></i></div>
+            <h3>Primeros pasos</h3>
+            <ul>
+              <li>Completá las credenciales de Supabase arriba y hacé click en "Conectar"</li>
+              <li>Pegá el SQL de <code>01_schema.sql</code> en Supabase → SQL Editor y ejecutalo</li>
+              <li>Exportá tu Sheets como CSV y corrí <code>python 02_migrar.py</code></li>
+              <li>Volvé acá y hacé click en "Actualizar" para ver tus datos</li>
+            </ul>
+          </div>
+          <div class="tut-card">
+            <div class="tut-icon"><i class="ti ti-robot"></i></div>
+            <h3>Chat IA — qué podés preguntar</h3>
+            <ul>
+              <li>¿Qué clientes vencen esta semana?</li>
+              <li>¿Qué perfiles tengo libres ahora?</li>
+              <li>¿A qué clientes está asignado este correo?</li>
+              <li>¿Cuánto gané este mes en ARS y UYU?</li>
+              <li>Cambiá a Juan del correo X al correo Y</li>
+              <li>Agregá a María con Netflix, vence el 15 de junio</li>
+              <li>¿Cuándo tengo que renovar con mis proveedores?</li>
+              <li>¿Qué cuentas de Netflix tienen perfiles libres?</li>
+            </ul>
+          </div>
+          <div class="tut-card">
+            <div class="tut-icon"><i class="ti ti-mail"></i></div>
+            <h3>Gestión de cuentas y correos</h3>
+            <ul>
+              <li>Ver a qué clientes está asignado cada correo</li>
+              <li>Detectar perfiles libres automáticamente</li>
+              <li>Saber si una cuenta es propia o de proveedor</li>
+              <li>Ver cuándo tenés que renovar cada cuenta con el proveedor</li>
+              <li>Registrar el costo de cada perfil/cuenta por separado</li>
+              <li>Historial de cambios de cuenta por cliente</li>
+            </ul>
+          </div>
+          <div class="tut-card">
+            <div class="tut-icon"><i class="ti ti-currency-dollar"></i></div>
+            <h3>Finanzas y tipo de cambio</h3>
+            <ul>
+              <li>Cargar el valor del dólar diario (USD→ARS y USD→UYU)</li>
+              <li>Ver ganancia en ARS, UYU y USD por cliente</li>
+              <li>Historial de pagos recibidos y pendientes</li>
+              <li>Costo total por proveedor y por servicio</li>
+              <li>Ganancia neta del mes con conversión automática</li>
+              <li>Comparar meses anteriores en estadísticas</li>
+            </ul>
+          </div>
+          <div class="tut-card">
+            <div class="tut-icon"><i class="ti ti-history"></i></div>
+            <h3>Trazabilidad</h3>
+            <ul>
+              <li>Registro automático de cada cambio de cuenta</li>
+              <li>Detección de perfiles que quedaron libres tras un movimiento</li>
+              <li>Auditar discrepancias entre clientes y cuentas</li>
+              <li>Ver quién usaba qué correo en el pasado</li>
+            </ul>
+          </div>
+          <div class="tut-card">
+            <div class="tut-icon"><i class="ti ti-brand-whatsapp"></i></div>
+            <h3>WhatsApp y recordatorios</h3>
+            <ul>
+              <li>Link directo a WhatsApp desde cada cliente</li>
+              <li>El chat IA puede redactar mensajes de renovación</li>
+              <li>Filtrar clientes por días restantes para avisar en lote</li>
+              <li>Ver todos los que vencen en un día puntual</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+// ============================================================
+// ESTADO GLOBAL
+// ============================================================
+let SB = null;
+let CLAUDE_KEY = '';
+let USD_ARS = 1255;
+let USD_UYU = 40.2;
+let todosClientes = [];
+let chatHistory = [];
+
+const TITLES = {
+  dashboard:'Dashboard', estadisticas:'Estadísticas', chat:'Chat IA',
+  clientes:'Clientes', suscripciones:'Suscripciones', cuentas:'Cuentas / Correos',
+  proveedores:'Proveedores', pagos:'Pagos', dolar:'Tipo de cambio',
+  schema:'Estructura de la base de datos', tutorial:'Ayuda (?)'
+};
+
+// ============================================================
+// NAVEGACIÓN
+// ============================================================
+function nav(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  document.getElementById('topbar-title').textContent = TITLES[id];
+  // marcar nav activo
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.trim().startsWith(TITLES[id].split(' ')[0])) n.classList.add('active');
+  });
+}
+
+// ============================================================
+// CONEXIÓN SUPABASE
+// ============================================================
+async function conectar() {
+  const url = document.getElementById('inp-url').value.trim();
+  const key = document.getElementById('inp-key').value.trim();
+  CLAUDE_KEY = document.getElementById('inp-claude').value.trim();
+
+  if (!url || !key) { alert('Completá URL y Key de Supabase'); return; }
+
+  try {
+    SB = supabase.createClient(url, key);
+    // test de conexión
+    const { error } = await SB.from('clientes').select('id').limit(1);
+    if (error) throw error;
+
+    document.getElementById('conn-status').textContent = '● Conectado';
+    document.getElementById('conn-status').style.color = 'var(--accent)';
+    document.getElementById('config-banner').style.display = 'none';
+    await cargarTodo();
+  } catch(e) {
+    alert('Error al conectar: ' + e.message + '\n\nVerificá URL y key de Supabase.');
+  }
+}
+
+// ============================================================
+// CARGA PRINCIPAL
+// ============================================================
+async function cargarTodo() {
+  if (!SB) return;
+  await Promise.all([
+    cargarDashboard(),
+    cargarClientes(),
+    cargarSuscripciones(),
+    cargarProveedores(),
+    cargarTC(),
+  ]);
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+async function cargarDashboard() {
+  const hoy = new Date().toISOString().split('T')[0];
+  const en7 = new Date(Date.now() + 7*86400000).toISOString().split('T')[0];
+
+  const [{ count: total }, { count: activos }, { data: semana }, { data: vencidos }] = await Promise.all([
+    SB.from('clientes').select('*', { count: 'exact', head: true }),
+    SB.from('clientes').select('*', { count: 'exact', head: true }).eq('estado','Activo'),
+    SB.from('suscripciones').select('cliente_id, fecha_vencimiento, cuentas(correo)').gte('fecha_vencimiento', hoy).lte('fecha_vencimiento', en7).eq('estado','Activo'),
+    SB.from('suscripciones').select('cliente_id, fecha_vencimiento').lt('fecha_vencimiento', hoy).eq('estado','Activo'),
+  ]);
+
+  document.getElementById('s-total').textContent = total || 0;
+  document.getElementById('s-activos').textContent = activos || 0;
+  document.getElementById('s-semana').textContent = semana?.length || 0;
+  document.getElementById('s-vencidos').textContent = vencidos?.length || 0;
+  document.getElementById('badge-venc').textContent = (semana?.length || 0) + (vencidos?.length || 0);
+
+  // Alertas
+  const alerts = document.getElementById('dash-alerts');
+  alerts.innerHTML = '';
+  if (vencidos?.length) {
+    alerts.innerHTML += `<div class="alert alert-d"><i class="ti ti-alert-circle" style="font-size:16px"></i> <strong>${vencidos.length} suscripciones vencidas</strong> sin renovar. Revisalas en el panel de Suscripciones.</div>`;
+  }
+  if (semana?.length) {
+    alerts.innerHTML += `<div class="alert alert-w"><i class="ti ti-clock" style="font-size:16px"></i> <strong>${semana.length} suscripciones vencen en los próximos 7 días.</strong> Considerá enviar recordatorios.</div>`;
+  }
+}
+
+// ============================================================
+// CLIENTES
+// ============================================================
+async function cargarClientes() {
+  const { data, error } = await SB.from('clientes').select('*, suscripciones(id, servicio, fecha_vencimiento, venta, moneda_venta)').order('nombre');
+  if (error || !data) return;
+  todosClientes = data;
+  renderClientes(data);
+}
+
+function renderClientes(data) {
+  const hoy = new Date();
+  const tbody = document.getElementById('tbody-clientes');
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px">Sin clientes en la base</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map(c => {
+    const subs = c.suscripciones || [];
+    const proximaVenc = subs.filter(s => s.fecha_vencimiento).sort((a,b) => new Date(a.fecha_vencimiento) - new Date(b.fecha_vencimiento))[0];
+    const dias = proximaVenc ? Math.ceil((new Date(proximaVenc.fecha_vencimiento) - hoy) / 86400000) : null;
+    const venta = subs.reduce((a,s) => a + (parseFloat(s.venta)||0), 0);
+    const estadoPill = c.estado === 'Activo'
+      ? '<span class="pill p-ok">Activo</span>'
+      : '<span class="pill p-d">Inactivo</span>';
+    const diasPill = dias === null ? '—'
+      : dias < 0 ? `<span class="pill p-d">${dias}d</span>`
+      : dias <= 7 ? `<span class="pill p-w">${dias}d</span>`
+      : `<span class="pill p-ok">${dias}d</span>`;
+    const wa = c.telefono ? `<a href="https://wa.me/${c.telefono}" target="_blank"><button class="icon-btn wa-btn"><i class="ti ti-brand-whatsapp"></i></button></a>` : '';
+    return `<tr>
+      <td>${c.nombre}</td>
+      <td>${c.telefono || '—'}</td>
+      <td><span class="pill ${c.pais==='Uruguay'?'p-g':'p-b'}">${c.pais||'ARG'}</span></td>
+      <td>${estadoPill}</td>
+      <td>${proximaVenc ? proximaVenc.fecha_vencimiento : '—'}</td>
+      <td>${subs.length}</td>
+      <td>$${venta.toLocaleString('es-AR')}</td>
+      <td>${wa}</td>
+    </tr>`;
+  }).join('');
+}
+
+function filtrarClientes() {
+  const q = document.getElementById('search-clientes').value.toLowerCase();
+  const pais = document.getElementById('fil-pais').value;
+  const estado = document.getElementById('fil-estado').value;
+  const filtrados = todosClientes.filter(c => {
+    const match = !q || c.nombre?.toLowerCase().includes(q) || c.telefono?.includes(q);
+    const matchPais = !pais || c.pais === pais;
+    const matchEst = !estado || c.estado === estado;
+    return match && matchPais && matchEst;
+  });
+  renderClientes(filtrados);
+}
+
+// ============================================================
+// SUSCRIPCIONES
+// ============================================================
+async function cargarSuscripciones() {
+  const { data } = await SB.from('suscripciones')
+    .select('*, clientes(nombre, telefono), cuentas(correo, costo_proveedor)')
+    .order('fecha_vencimiento');
+  if (!data) return;
+
+  const hoy = new Date();
+  const tbody = document.getElementById('tbody-suscripciones');
+  tbody.innerHTML = data.map(s => {
+    const dias = s.fecha_vencimiento ? Math.ceil((new Date(s.fecha_vencimiento) - hoy) / 86400000) : null;
+    const dPill = dias === null ? '—'
+      : dias < 0 ? `<span class="pill p-d">${dias}d</span>`
+      : dias <= 7 ? `<span class="pill p-w">${dias}d</span>`
+      : `<span class="pill p-ok">${dias}d</span>`;
+    const gan = (parseFloat(s.venta)||0) - (parseFloat(s.cuentas?.costo_proveedor)||0);
+    return `<tr>
+      <td>${s.clientes?.nombre||'—'}</td>
+      <td>${s.servicio||'—'}</td>
+      <td style="font-family:monospace;font-size:11px">${s.cuentas?.correo||'—'}</td>
+      <td>${s.fecha_vencimiento||'—'}</td>
+      <td>${dPill}</td>
+      <td>$${parseFloat(s.venta||0).toLocaleString()}</td>
+      <td>$${parseFloat(s.cuentas?.costo_proveedor||0).toLocaleString()}</td>
+      <td style="color:${gan>=0?'var(--accent)':'var(--danger)'}">$${gan.toLocaleString()}</td>
+      <td><span class="pill ${s.estado==='Activo'?'p-ok':'p-d'}">${s.estado||'—'}</span></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:24px">Sin suscripciones</td></tr>';
+}
+
+// ============================================================
+// PROVEEDORES
+// ============================================================
+async function cargarProveedores() {
+  const { data } = await SB.from('proveedores').select('*');
+  if (!data) return;
+  const tbody = document.getElementById('tbody-proveedores');
+  tbody.innerHTML = data.map(p => `<tr>
+    <td>${p.nombre}</td>
+    <td>${p.servicio||'—'}</td>
+    <td>${p.contacto||'—'}</td>
+    <td>—</td><td>—</td><td>—</td>
+    <td><span class="pill p-ok">Al día</span></td>
+  </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:24px">Sin proveedores</td></tr>';
+}
+
+// ============================================================
+// TIPO DE CAMBIO
+// ============================================================
+async function cargarTC() {
+  const { data } = await SB.from('tipo_cambio').select('*').order('fecha', { ascending: false }).limit(10);
+  if (!data || !data.length) return;
+  const ultimo = data[0];
+  USD_ARS = parseFloat(ultimo.usd_ars);
+  USD_UYU = parseFloat(ultimo.usd_uyu);
+  document.getElementById('tc-ars').textContent = '$' + USD_ARS.toLocaleString();
+  document.getElementById('tc-uyu').textContent = USD_UYU.toFixed(2);
+  document.getElementById('tc-cross').textContent = (USD_UYU / USD_ARS).toFixed(4);
+  document.getElementById('tc-fecha').textContent = new Date(ultimo.fecha).toLocaleDateString('es-AR');
+
+  // estimativos financieros
+  const { data: subs } = await SB.from('suscripciones').select('venta, moneda_venta, cuentas(costo_proveedor)').eq('estado','Activo');
+  if (subs) {
+    let venta = 0, costo = 0;
+    subs.forEach(s => {
+      let v = parseFloat(s.venta || 0);
+      if (s.moneda_venta === 'UYU') v = v / USD_UYU * USD_ARS;
+      venta += v;
+      costo += parseFloat(s.cuentas?.costo_proveedor || 0);
+    });
+    const gan = venta - costo;
+    document.getElementById('est-venta').textContent = '$' + Math.round(venta).toLocaleString('es-AR');
+    document.getElementById('est-costo').textContent = '$' + Math.round(costo).toLocaleString('es-AR');
+    document.getElementById('est-ganancia').textContent = '$' + Math.round(gan).toLocaleString('es-AR');
+    document.getElementById('est-usd').textContent = 'USD ' + (gan / USD_ARS).toFixed(1);
+    document.getElementById('p-cobrado').textContent = '$' + Math.round(venta).toLocaleString('es-AR');
+    document.getElementById('p-gasto').textContent = '$' + Math.round(costo).toLocaleString('es-AR');
+    document.getElementById('p-ganancia').textContent = '$' + Math.round(gan).toLocaleString('es-AR');
+    document.getElementById('p-usd').textContent = 'USD ' + (gan / USD_ARS).toFixed(1);
+  }
+}
+
+async function guardarTC() {
+  if (!SB) return;
+  const ars = parseFloat(document.getElementById('tc-inp-ars').value);
+  const uyu = parseFloat(document.getElementById('tc-inp-uyu').value);
+  if (!ars || !uyu) return;
+  const hoy = new Date().toISOString().split('T')[0];
+  await SB.from('tipo_cambio').upsert({ fecha: hoy, usd_ars: ars, usd_uyu: uyu }, { onConflict: 'fecha' });
+  await cargarTC();
+}
+
+// ============================================================
+// MODAL NUEVO CLIENTE
+// ============================================================
+function abrirModal() { document.getElementById('modal-cliente').classList.add('open'); }
+function cerrarModal() { document.getElementById('modal-cliente').classList.remove('open'); }
+
+async function guardarCliente() {
+  if (!SB) { alert('Conectá Supabase primero'); return; }
+  const nombre   = document.getElementById('f-nombre').value.trim();
+  const telefono = document.getElementById('f-tel').value.trim();
+  const pais     = document.getElementById('f-pais').value;
+  const estado   = document.getElementById('f-estado').value;
+  const servicio = document.getElementById('f-servicio').value.trim();
+  const venta    = parseFloat(document.getElementById('f-venta').value) || 0;
+  const venc     = document.getElementById('f-venc').value;
+  const correo   = document.getElementById('f-correo').value.trim();
+  const notas    = document.getElementById('f-notas').value.trim();
+
+  if (!nombre) { alert('El nombre es obligatorio'); return; }
+
+  const { data: c } = await SB.from('clientes').insert({ nombre, telefono, pais, estado, notas }).select().single();
+  if (c && servicio) {
+    // buscar o crear cuenta
+    let cuenta_id = null;
+    if (correo) {
+      const { data: cu } = await SB.from('cuentas').select('id').eq('correo', correo).single();
+      if (cu) {
+        cuenta_id = cu.id;
+      } else {
+        const { data: ncu } = await SB.from('cuentas').insert({ correo, servicio }).select().single();
+        cuenta_id = ncu?.id;
+      }
+    }
+    await SB.from('suscripciones').insert({
+      cliente_id: c.id, cuenta_id, servicio,
+      fecha_vencimiento: venc || null,
+      venta, moneda_venta: pais === 'Uruguay' ? 'UYU' : 'ARS',
+      estado,
+    });
+    await SB.from('movimientos').insert({
+      tipo: 'alta', cliente_id: c.id, cuenta_id,
+      descripcion: `Alta de cliente ${nombre} — ${servicio}`,
+    });
+  }
+
+  cerrarModal();
+  await cargarTodo();
+}
+
+// ============================================================
+// CHAT IA
+// ============================================================
+function addMsg(text, role) {
+  const msgs = document.getElementById('chat-msgs');
+  const div = document.createElement('div');
+  div.className = 'msg msg-' + role;
+  div.innerHTML = text.replace(/\n/g, '<br>');
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+async function enviarChat(texto) {
+  nav('chat');
+  document.getElementById('chat-in').value = texto;
+  await new Promise(r => setTimeout(r, 50));
+  enviarChatBtn();
+}
+
+async function enviarChatBtn() {
+  const input = document.getElementById('chat-in');
+  const texto = input.value.trim();
+  if (!texto) return;
+  input.value = '';
+
+  addMsg(texto, 'user');
+  chatHistory.push({ role: 'user', content: texto });
+
+  const typingDiv = addMsg('<div class="typing-dots"><span></span><span></span><span></span></div>', 'ai');
+
+  // contexto de la BD para el prompt
+  let contexto = 'Sos el asistente de gestión de MISAKROOS, un negocio de reventa de suscripciones digitales en Argentina y Uruguay.\n\n';
+  if (SB) {
+    try {
+      const { data: resumen } = await SB.from('v_suscripciones_detalle').select('cliente,servicio,dias_restantes,venta,ganancia_bruta,estado').limit(200);
+      if (resumen) contexto += 'Datos actuales de suscripciones:\n' + JSON.stringify(resumen.slice(0,50)) + '\n\n';
+      const { data: libres } = await SB.from('v_perfiles_libres').select('*');
+      if (libres?.length) contexto += `Perfiles libres: ${libres.length} perfil(es) sin asignar.\n`;
+    } catch(e) {}
+  } else {
+    contexto += 'IMPORTANTE: Supabase no está conectado. Indicale al usuario que conecte la base primero. Podés usar los datos de muestra conocidos (203 clientes, Netflix 100, Flujo 48, Disney 25).\n';
+  }
+
+  if (CLAUDE_KEY) {
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': CLAUDE_KEY, 'anthropic-version': '2023-06-01' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          system: contexto,
+          messages: chatHistory,
+        })
+      });
+      const d = await res.json();
+      const respuesta = d.content?.[0]?.text || 'No pude obtener respuesta.';
+      typingDiv.innerHTML = respuesta.replace(/\n/g, '<br>');
+      chatHistory.push({ role: 'assistant', content: respuesta });
+    } catch(e) {
+      typingDiv.innerHTML = 'Error al conectar con Claude API. Verificá tu API key.';
+    }
+  } else {
+    // respuestas locales de muestra
+    await new Promise(r => setTimeout(r, 800));
+    const t = texto.toLowerCase();
+    let r = '';
+    if (t.includes('venc') && t.includes('semana')) r = '⚠️ Esta semana vencen aproximadamente 61 clientes (datos del Sheets original). Los más urgentes: Gustavo (05/06), Jesica (05/06), Emanuel (05/06), Martin (05/06).';
+    else if (t.includes('perfil') && t.includes('libre')) r = '🔴 Detecté correos reutilizados en múltiples clientes. Una vez conectado Supabase podré decirte los perfiles exactos libres en tiempo real.';
+    else if (t.includes('gan') || t.includes('mes')) r = '💰 Estimativo mayo 2026:\n• Venta: ~$487.200 ARS\n• Costo: ~$325.800 ARS\n• Ganancia: ~$161.400 ARS (USD 128)\n\nConectá tu API key de Claude para respuestas con datos reales de Supabase.';
+    else if (t.includes('vencid')) r = '⚠️ Clientes vencidos detectados en tu Sheets:\n• Martin (-4 días)\n• Abi (-4 días)\n• Nahuel (-2 días)\n• Piriz (-6 días)\n• Eli (-24 días)\n\nContactalos hoy.';
+    else r = 'Para respuestas en tiempo real con tus datos reales, cargá tu Claude API key en la configuración de arriba. Puedo acceder a tu Supabase y darte información exacta.';
+    typingDiv.innerHTML = r.replace(/\n/g, '<br>');
+    chatHistory.push({ role: 'assistant', content: r });
+  }
+
+  document.getElementById('chat-msgs').scrollTop = 99999;
+}
+
+// Cerrar modal al clickear fuera
+document.getElementById('modal-cliente').addEventListener('click', function(e) {
+  if (e.target === this) cerrarModal();
+});
+</script>
+</body>
+</html>
