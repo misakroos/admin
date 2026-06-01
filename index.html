@@ -5,250 +5,193 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MISAKROOS — Panel de Gestión</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <style>
-/* ===================== VARIABLES ===================== */
 :root {
-  --bg:       #0d0d0f;
-  --bg2:      #141416;
-  --bg3:      #1a1a1d;
-  --border:   rgba(255,255,255,0.07);
-  --border2:  rgba(255,255,255,0.13);
-  --text:     #f0f0f2;
-  --text2:    #9a9aa8;
-  --text3:    #5a5a68;
-  --accent:   #00c896;
-  --accent2:  #0099ff;
-  --danger:   #e24b4a;
-  --warn:     #ef9f27;
-  --ok:       #1d9e75;
-  --nav-w:    230px;
-  --font:     'Inter', system-ui, sans-serif;
+  --bg:#0d0d0f;--bg2:#141416;--bg3:#1a1a1d;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#f0f0f2;--text2:#9a9aa8;--text3:#5a5a68;
+  --accent:#00c896;--accent2:#0099ff;--danger:#e24b4a;--warn:#ef9f27;--ok:#1d9e75;
+  --nav-w:230px;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 13px; height: 100vh; overflow: hidden; }
-
-/* ===================== LAYOUT ===================== */
-#app { display: flex; height: 100vh; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:13px;height:100vh;overflow:hidden}
+#app{display:flex;height:100vh}
 
 /* SIDEBAR */
-#sidebar {
-  width: var(--nav-w);
-  background: var(--bg2);
-  border-right: 1px solid var(--border);
-  display: flex; flex-direction: column;
-  flex-shrink: 0; overflow-y: auto;
-}
-#logo {
-  padding: 20px 18px 16px;
-  border-bottom: 1px solid var(--border);
-}
-#logo .name { font-size: 16px; font-weight: 700; letter-spacing: -.3px; color: var(--accent); }
-#logo .sub  { font-size: 11px; color: var(--text3); margin-top: 2px; }
-nav { flex: 1; padding: 8px 0; }
-.nav-sec { font-size: 10px; font-weight: 600; color: var(--text3); padding: 14px 18px 4px; text-transform: uppercase; letter-spacing: .1em; }
-.nav-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 9px 18px; cursor: pointer; font-size: 13px;
-  color: var(--text2); transition: all .15s; border-left: 2px solid transparent;
-}
-.nav-item:hover { background: var(--bg3); color: var(--text); }
-.nav-item.active { background: var(--bg3); color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
-.nav-item i { font-size: 16px; opacity: .8; }
-.nbadge { margin-left: auto; background: var(--danger); color: #fff; font-size: 10px; padding: 1px 6px; border-radius: 10px; font-weight: 600; }
+#sidebar{width:var(--nav-w);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+#logo{padding:20px 18px 16px;border-bottom:1px solid var(--border)}
+#logo .name{font-size:16px;font-weight:700;color:var(--accent)}
+#logo .sub{font-size:11px;color:var(--text3);margin-top:2px}
+nav{flex:1;padding:8px 0}
+.nav-sec{font-size:10px;font-weight:600;color:var(--text3);padding:14px 18px 4px;text-transform:uppercase;letter-spacing:.1em}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;font-size:13px;color:var(--text2);transition:all .15s;border-left:2px solid transparent}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--bg3);color:var(--accent);border-left-color:var(--accent);font-weight:500}
+.nav-item i{font-size:16px}
+.nbadge{margin-left:auto;background:var(--danger);color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;font-weight:600}
 
 /* MAIN */
-#main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
-#topbar {
-  padding: 12px 24px;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-  background: var(--bg2);
-}
-#topbar h2 { font-size: 15px; font-weight: 600; }
-.topbar-right { display: flex; align-items: center; gap: 10px; }
-.btn { padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border2); background: transparent; color: var(--text); cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px; transition: all .15s; }
-.btn:hover { background: var(--bg3); border-color: var(--border2); }
-.btn-accent { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 600; }
-.btn-accent:hover { opacity: .88; background: var(--accent); }
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+#topbar{padding:12px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2)}
+#topbar h2{font-size:15px;font-weight:600}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.btn{padding:7px 14px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;font-size:12px;display:flex;align-items:center;gap:6px;transition:all .15s}
+.btn:hover{background:var(--bg3)}
+.btn-accent{background:var(--accent);border-color:var(--accent);color:#000;font-weight:600}
+.btn-accent:hover{opacity:.88;background:var(--accent)}
+.btn-danger{background:rgba(226,75,74,.15);border-color:var(--danger);color:#f88}
+.btn-danger:hover{background:rgba(226,75,74,.25)}
 
 /* CONFIG BANNER */
-#config-banner {
-  background: linear-gradient(135deg, #1a1500, #100a00);
-  border-bottom: 1px solid var(--warn);
-  padding: 10px 24px;
-  display: flex; align-items: center; gap: 12px;
-  font-size: 12px; color: var(--warn);
-}
-#config-banner input {
-  background: var(--bg3); border: 1px solid var(--border2);
-  color: var(--text); border-radius: 6px; padding: 5px 10px;
-  font-size: 12px; font-family: monospace; width: 280px;
-}
-#config-banner input:focus { outline: none; border-color: var(--accent); }
+#config-banner{background:linear-gradient(135deg,#1a1500,#100a00);border-bottom:1px solid var(--warn);padding:10px 24px;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--warn);flex-wrap:wrap}
+#config-banner input{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px;padding:5px 10px;font-size:12px;font-family:monospace;width:260px}
+#config-banner input:focus{outline:none;border-color:var(--accent)}
 
-#content { flex: 1; overflow-y: auto; padding: 24px; }
+#content{flex:1;overflow-y:auto;padding:24px}
+.panel{display:none}
+.panel.active{display:block}
 
-/* ===================== PANELS ===================== */
-.panel { display: none; }
-.panel.active { display: block; }
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px}
+.stat-lbl{font-size:11px;color:var(--text3);margin-bottom:8px;font-weight:500;text-transform:uppercase;letter-spacing:.06em}
+.stat-val{font-size:28px;font-weight:700;line-height:1}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:6px}
+.c-ok{color:var(--accent)}.c-warn{color:var(--warn)}.c-danger{color:var(--danger)}.c-blue{color:var(--accent2)}
 
-/* ===================== STATS ===================== */
-.stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-bottom: 20px; }
-.stat {
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 12px; padding: 16px;
-}
-.stat-lbl { font-size: 11px; color: var(--text3); margin-bottom: 8px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; }
-.stat-val { font-size: 28px; font-weight: 700; line-height: 1; }
-.stat-sub { font-size: 11px; color: var(--text3); margin-top: 6px; }
-.c-ok { color: var(--accent); }
-.c-warn { color: var(--warn); }
-.c-danger { color: var(--danger); }
-.c-blue { color: var(--accent2); }
+/* ALERTS */
+.alert{border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;font-size:12px}
+.alert-d{background:rgba(226,75,74,.12);border:1px solid rgba(226,75,74,.3);color:#f88}
+.alert-w{background:rgba(239,159,39,.1);border:1px solid rgba(239,159,39,.3);color:var(--warn)}
+.alert-ok{background:rgba(0,200,150,.1);border:1px solid rgba(0,200,150,.3);color:var(--accent)}
 
-/* ===================== ALERT ===================== */
-.alert {
-  border-radius: 8px; padding: 10px 14px; margin-bottom: 14px;
-  display: flex; align-items: center; gap: 10px; font-size: 12px;
-}
-.alert-d { background: rgba(226,75,74,.12); border: 1px solid rgba(226,75,74,.3); color: #f88; }
-.alert-w { background: rgba(239,159,39,.1); border: 1px solid rgba(239,159,39,.3); color: var(--warn); }
-.alert-ok { background: rgba(0,200,150,.1); border: 1px solid rgba(0,200,150,.3); color: var(--accent); }
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px}
+.card h3{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:14px;display:flex;align-items:center;gap:8px}
 
-/* ===================== CARDS ===================== */
-.card {
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 12px; padding: 18px;
-}
-.card h3 { font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-.card h3 i { font-size: 15px; }
+/* TABLA */
+.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.tbl-filters{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tbl-filters input,.tbl-filters select{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:7px 10px;font-size:12px}
+.tbl-filters input{flex:1;min-width:160px}
+.tbl-filters input:focus,.tbl-filters select:focus{outline:none;border-color:var(--accent)}
+.sort-btn{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);border-radius:7px;padding:6px 10px;cursor:pointer;font-size:11px;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.sort-btn.active{border-color:var(--accent);color:var(--accent)}
+.tbl-info{font-size:11px;color:var(--text3);padding:8px 16px;border-bottom:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+th{padding:10px 12px;text-align:left;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;background:var(--bg3);border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+th:hover{color:var(--text)}
+td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.pill{display:inline-block;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600}
+.p-ok{background:rgba(29,158,117,.2);color:#4ecfa0}
+.p-w{background:rgba(239,159,39,.15);color:var(--warn)}
+.p-d{background:rgba(226,75,74,.15);color:#f88}
+.p-b{background:rgba(0,153,255,.15);color:#5bc4ff}
+.p-g{background:rgba(255,255,255,.06);color:var(--text2)}
+.icon-btn{background:none;border:none;cursor:pointer;font-size:15px;color:var(--text3);padding:3px 5px;border-radius:4px;transition:all .15s}
+.icon-btn:hover{color:var(--text);background:var(--bg3)}
+.icon-btn.wa{color:#25d366}
+.icon-btn.edit{color:var(--accent2)}
+.icon-btn.del{color:var(--danger)}
 
-/* ===================== TABLA ===================== */
-.table-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-.tbl-search { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; }
-.tbl-search input, .tbl-search select {
-  background: var(--bg3); border: 1px solid var(--border2);
-  color: var(--text); border-radius: 7px; padding: 7px 12px; font-size: 12px;
-}
-.tbl-search input { flex: 1; }
-.tbl-search input:focus, .tbl-search select:focus { outline: none; border-color: var(--accent); }
-table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
-th {
-  padding: 10px 14px; text-align: left; font-size: 10px; font-weight: 600;
-  color: var(--text3); text-transform: uppercase; letter-spacing: .08em;
-  background: var(--bg3); border-bottom: 1px solid var(--border);
-}
-td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-tr:last-child td { border-bottom: none; }
-tr:hover td { background: var(--bg3); }
-.pill { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
-.p-ok  { background: rgba(29,158,117,.2); color: #4ecfa0; }
-.p-w   { background: rgba(239,159,39,.15); color: var(--warn); }
-.p-d   { background: rgba(226,75,74,.15); color: #f88; }
-.p-b   { background: rgba(0,153,255,.15); color: #5bc4ff; }
-.p-g   { background: rgba(255,255,255,.06); color: var(--text2); }
-.icon-btn { background: none; border: none; cursor: pointer; font-size: 16px; color: var(--text3); padding: 2px 4px; border-radius: 4px; }
-.icon-btn:hover { color: var(--text); background: var(--bg3); }
-.wa-btn { color: #25d366 !important; }
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:24px;width:520px;max-width:96vw;max-height:90vh;overflow-y:auto}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center}
+.modal h3 button{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px}
+.form-group{margin-bottom:13px}
+.form-group label{font-size:10px;color:var(--text3);display:block;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:8px 12px;font-size:13px}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--accent)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.modal-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
 
-/* ===================== BARRAS ===================== */
-.bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-.bar-lbl { font-size: 11px; color: var(--text2); width: 140px; flex-shrink: 0; text-align: right; }
-.bar-track { flex: 1; background: var(--bg3); border-radius: 4px; height: 16px; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; transition: width .6s ease; }
-.bar-fill span { font-size: 10px; font-weight: 600; color: #fff; }
+/* PRECIOS */
+.precios-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.precio-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;justify-content:space-between;align-items:center}
+.precio-info .servicio{font-weight:600;font-size:13px;margin-bottom:4px}
+.precio-info .moneda{font-size:11px;color:var(--text3)}
+.precio-nums{text-align:right}
+.precio-nums .venta{font-size:16px;font-weight:700;color:var(--accent)}
+.precio-nums .costo{font-size:11px;color:var(--text3)}
+.precio-nums .ganancia{font-size:11px;color:var(--warn)}
+.precio-actions{display:flex;gap:4px;margin-left:12px}
 
-/* ===================== SEMANAS ===================== */
-.sem-bars { display: flex; align-items: flex-end; gap: 12px; height: 100px; margin-top: 10px; }
-.sem-col { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
-.sem-bar { width: 100%; border-radius: 6px 6px 0 0; transition: height .5s ease; }
-.sem-lbl { font-size: 10px; color: var(--text3); text-align: center; line-height: 1.3; }
-.sem-num { font-size: 13px; font-weight: 700; }
+/* VENCIMIENTOS CARD */
+.venc-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.venc-item:last-child{border-bottom:none}
+.two-col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.three-col{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
 
-/* ===================== CHAT ===================== */
-#chat-wrap { display: flex; flex-direction: column; height: calc(100vh - 140px); }
-#chat-msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
-.msg { max-width: 80%; padding: 12px 16px; border-radius: 14px; font-size: 13px; line-height: 1.55; }
-.msg-user { align-self: flex-end; background: var(--accent); color: #000; font-weight: 500; border-bottom-right-radius: 4px; }
-.msg-ai { align-self: flex-start; background: var(--bg2); border: 1px solid var(--border); border-bottom-left-radius: 4px; color: var(--text); }
-.msg-ai strong { color: var(--accent); }
-.sugg-wrap { padding: 8px 20px 10px; display: flex; flex-wrap: wrap; gap: 7px; }
-.sugg { font-size: 11px; padding: 5px 12px; border: 1px solid var(--border2); border-radius: 20px; cursor: pointer; color: var(--text2); background: none; transition: all .15s; }
-.sugg:hover { border-color: var(--accent); color: var(--accent); }
-#chat-bar { padding: 12px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; background: var(--bg2); }
-#chat-in {
-  flex: 1; background: var(--bg3); border: 1px solid var(--border2);
-  color: var(--text); border-radius: 22px; padding: 10px 18px; font-size: 13px;
-}
-#chat-in:focus { outline: none; border-color: var(--accent); }
-#chat-send {
-  padding: 10px 20px; background: var(--accent); color: #000;
-  border: none; border-radius: 22px; cursor: pointer; font-size: 13px; font-weight: 700;
-}
-#chat-send:hover { opacity: .88; }
-.typing-dots { display: flex; align-items: center; gap: 4px; padding: 6px 0; }
-.typing-dots span { width: 7px; height: 7px; background: var(--text3); border-radius: 50%; animation: td 1.2s infinite; }
-.typing-dots span:nth-child(2) { animation-delay: .2s; }
-.typing-dots span:nth-child(3) { animation-delay: .4s; }
-@keyframes td { 0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)} }
+/* BARRAS ESTADÍSTICAS */
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.bar-lbl{font-size:11px;color:var(--text2);width:150px;flex-shrink:0;text-align:right}
+.bar-track{flex:1;background:var(--bg3);border-radius:4px;height:16px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px}
+.bar-fill span{font-size:10px;font-weight:600;color:#fff}
+.sem-bars{display:flex;align-items:flex-end;gap:12px;height:100px;margin-top:10px}
+.sem-col{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}
+.sem-bar{width:100%;border-radius:6px 6px 0 0}
+.sem-lbl{font-size:10px;color:var(--text3);text-align:center;line-height:1.3}
+.sem-num{font-size:13px;font-weight:700}
 
-/* ===================== SCHEMA ===================== */
-.schema-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
-.schema-tbl { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-.schema-hd { padding: 10px 14px; background: var(--bg3); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text); }
-.schema-row { padding: 7px 14px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 11px; }
-.schema-row:last-child { border-bottom: none; }
-.schema-row .f { color: var(--text); }
-.schema-row .t { color: var(--text3); font-family: monospace; }
-.tag { font-size: 9px; padding: 1px 5px; border-radius: 4px; margin-left: 4px; font-weight: 700; }
-.tag-pk { background: rgba(0,153,255,.2); color: #5bc4ff; }
-.tag-fk { background: rgba(0,200,150,.15); color: var(--accent); }
-.tag-c  { background: rgba(239,159,39,.15); color: var(--warn); }
+/* CHAT */
+#chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 160px)}
+#chat-msgs{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
+.msg{max-width:80%;padding:12px 16px;border-radius:14px;font-size:13px;line-height:1.55}
+.msg-user{align-self:flex-end;background:var(--accent);color:#000;font-weight:500;border-bottom-right-radius:4px}
+.msg-ai{align-self:flex-start;background:var(--bg2);border:1px solid var(--border);border-bottom-left-radius:4px}
+.sugg-wrap{padding:8px 20px 10px;display:flex;flex-wrap:wrap;gap:7px}
+.sugg{font-size:11px;padding:5px 12px;border:1px solid var(--border2);border-radius:20px;cursor:pointer;color:var(--text2);background:none}
+.sugg:hover{border-color:var(--accent);color:var(--accent)}
+#chat-bar{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:10px;background:var(--bg2)}
+#chat-in{flex:1;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:22px;padding:10px 18px;font-size:13px}
+#chat-in:focus{outline:none;border-color:var(--accent)}
+#chat-send{padding:10px 20px;background:var(--accent);color:#000;border:none;border-radius:22px;cursor:pointer;font-size:13px;font-weight:700}
+.typing-dots{display:flex;align-items:center;gap:4px;padding:6px 0}
+.typing-dots span{width:7px;height:7px;background:var(--text3);border-radius:50%;animation:td 1.2s infinite}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes td{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
 
-/* ===================== TUTORIAL ===================== */
-.tut-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
-.tut-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
-.tut-icon { font-size: 24px; color: var(--accent); margin-bottom: 10px; }
-.tut-card h3 { font-size: 13px; font-weight: 600; margin-bottom: 10px; color: var(--text); }
-.tut-card ul { list-style: none; }
-.tut-card li { font-size: 12px; color: var(--text2); padding: 4px 0; display: flex; gap: 8px; line-height: 1.4; }
-.tut-card li::before { content: "→"; color: var(--accent); flex-shrink: 0; }
+/* SCHEMA */
+.schema-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.schema-tbl{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.schema-hd{padding:10px 14px;background:var(--bg3);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
+.schema-row{padding:7px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;font-size:11px}
+.schema-row:last-child{border-bottom:none}
+.tag{font-size:9px;padding:1px 5px;border-radius:4px;margin-left:4px;font-weight:700}
+.tag-pk{background:rgba(0,153,255,.2);color:#5bc4ff}
+.tag-fk{background:rgba(0,200,150,.15);color:var(--accent)}
+.tag-c{background:rgba(239,159,39,.15);color:var(--warn)}
 
-/* ===================== GRID LAYOUT STATS ===================== */
-.two-col { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; margin-top: 16px; }
-.three-col { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; margin-bottom: 16px; }
-.venc-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
-.venc-item:last-child { border-bottom: none; }
+/* TC */
+.dolar-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.dolar-row:last-child{border-bottom:none}
 
-/* ===================== MODAL ===================== */
-.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 100; align-items: center; justify-content: center; }
-.modal-bg.open { display: flex; }
-.modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: 14px; padding: 24px; width: 440px; max-width: 95vw; }
-.modal h3 { font-size: 15px; font-weight: 600; margin-bottom: 18px; }
-.form-group { margin-bottom: 14px; }
-.form-group label { font-size: 11px; color: var(--text3); display: block; margin-bottom: 5px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
-.form-group input, .form-group select, .form-group textarea {
-  width: 100%; background: var(--bg3); border: 1px solid var(--border2);
-  color: var(--text); border-radius: 7px; padding: 9px 12px; font-size: 13px;
-}
-.form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--accent); }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.modal-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
-
-/* ===================== DOLAR ===================== */
-.dolar-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
-.dolar-row:last-child { border-bottom: none; }
+/* TUTORIAL */
+.tut-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tut-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px}
+.tut-icon{font-size:24px;color:var(--accent);margin-bottom:10px}
+.tut-card h3{font-size:13px;font-weight:600;margin-bottom:10px}
+.tut-card li{font-size:12px;color:var(--text2);padding:4px 0;display:flex;gap:8px;line-height:1.4;list-style:none}
+.tut-card li::before{content:"→";color:var(--accent);flex-shrink:0}
 </style>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 </head>
 <body>
 
-<!-- MODAL NUEVO CLIENTE -->
+<!-- MODAL CLIENTE (nuevo / editar) -->
 <div class="modal-bg" id="modal-cliente">
   <div class="modal">
-    <h3>Nuevo cliente</h3>
+    <h3 id="modal-titulo">Nuevo cliente <button onclick="cerrarModal('modal-cliente')"><i class="ti ti-x"></i></button></h3>
+    <input type="hidden" id="f-id">
     <div class="form-row">
-      <div class="form-group"><label>Nombre</label><input id="f-nombre" type="text" placeholder="Ej: Gonzalo"></div>
+      <div class="form-group"><label>Nombre *</label><input id="f-nombre" type="text" placeholder="Ej: Gonzalo"></div>
       <div class="form-group"><label>Teléfono</label><input id="f-tel" type="text" placeholder="5492645..."></div>
     </div>
     <div class="form-row">
@@ -259,22 +202,75 @@ tr:hover td { background: var(--bg3); }
         <select id="f-estado"><option>Activo</option><option>Inactivo</option></select>
       </div>
     </div>
-    <div class="form-group"><label>Servicio(s)</label><input id="f-servicio" type="text" placeholder="Ej: Netflix, Disney+"></div>
+    <hr style="border-color:var(--border);margin:12px 0">
+    <div style="font-size:11px;color:var(--text3);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Suscripción</div>
     <div class="form-row">
-      <div class="form-group"><label>Venta (ARS/UYU)</label><input id="f-venta" type="number" placeholder="3500"></div>
-      <div class="form-group"><label>Vencimiento</label><input id="f-venc" type="date"></div>
+      <div class="form-group"><label>Servicio</label>
+        <select id="f-servicio-sel" onchange="autocompletarPrecio()">
+          <option value="">Seleccionar...</option>
+        </select>
+      </div>
+      <div class="form-group"><label>O escribir servicio</label><input id="f-servicio" type="text" placeholder="Ej: netflix y disney"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Precio venta</label><input id="f-venta" type="number" placeholder="3500"></div>
+      <div class="form-group"><label>Moneda</label>
+        <select id="f-moneda"><option>ARS</option><option>UYU</option><option>USD</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Fecha inicio</label><input id="f-inicio" type="date"></div>
+      <div class="form-group"><label>Fecha vencimiento</label><input id="f-venc" type="date"></div>
     </div>
     <div class="form-group"><label>Correo / Cuenta</label><input id="f-correo" type="text" placeholder="correo@gmail.com o Oled001"></div>
     <div class="form-group"><label>Notas</label><textarea id="f-notas" rows="2" placeholder="Info adicional..."></textarea></div>
     <div class="modal-btns">
-      <button class="btn" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn" onclick="cerrarModal('modal-cliente')">Cancelar</button>
       <button class="btn btn-accent" onclick="guardarCliente()"><i class="ti ti-check"></i> Guardar</button>
     </div>
   </div>
 </div>
 
+<!-- MODAL PRECIO -->
+<div class="modal-bg" id="modal-precio">
+  <div class="modal" style="width:400px">
+    <h3 id="precio-titulo">Nuevo precio <button onclick="cerrarModal('modal-precio')"><i class="ti ti-x"></i></button></h3>
+    <input type="hidden" id="p-id">
+    <div class="form-group"><label>Nombre del servicio *</label><input id="p-servicio" type="text" placeholder="Ej: Netflix 1 pantalla"></div>
+    <div class="form-group"><label>Slug (clave interna)</label><input id="p-slug" type="text" placeholder="netflix_1p" style="font-family:monospace"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Precio venta</label><input id="p-venta" type="number" placeholder="3500"></div>
+      <div class="form-group"><label>Costo proveedor</label><input id="p-costo" type="number" placeholder="1200"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Moneda</label>
+        <select id="p-moneda"><option>ARS</option><option>UYU</option><option>USD</option></select>
+      </div>
+      <div class="form-group"><label>Es combo</label>
+        <select id="p-combo"><option value="false">No</option><option value="true">Sí (múltiples servicios)</option></select>
+      </div>
+    </div>
+    <div class="form-group"><label>Descripción</label><input id="p-desc" type="text" placeholder="Ej: Netflix 1 pantalla compartida"></div>
+    <div class="modal-btns">
+      <button class="btn" onclick="cerrarModal('modal-precio')">Cancelar</button>
+      <button class="btn btn-accent" onclick="guardarPrecio()"><i class="ti ti-check"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VER CLIENTE -->
+<div class="modal-bg" id="modal-ver">
+  <div class="modal" style="width:560px">
+    <h3 id="ver-titulo">Cliente <button onclick="cerrarModal('modal-ver')"><i class="ti ti-x"></i></button></h3>
+    <div id="ver-contenido"></div>
+    <div class="modal-btns">
+      <button class="btn" onclick="cerrarModal('modal-ver')">Cerrar</button>
+      <button class="btn btn-accent" id="ver-editar-btn"><i class="ti ti-edit"></i> Editar</button>
+    </div>
+  </div>
+</div>
+
 <div id="app">
-  <!-- SIDEBAR -->
   <div id="sidebar">
     <div id="logo">
       <div class="name">MISAKROOS</div>
@@ -285,32 +281,28 @@ tr:hover td { background: var(--bg3); }
       <div class="nav-item active" onclick="nav('dashboard')"><i class="ti ti-dashboard"></i> Dashboard</div>
       <div class="nav-item" onclick="nav('estadisticas')"><i class="ti ti-chart-bar"></i> Estadísticas</div>
       <div class="nav-item" onclick="nav('chat')"><i class="ti ti-robot"></i> Chat IA</div>
-
       <div class="nav-sec">Gestión</div>
       <div class="nav-item" onclick="nav('clientes')"><i class="ti ti-users"></i> Clientes</div>
       <div class="nav-item" onclick="nav('suscripciones')"><i class="ti ti-calendar-check"></i> Suscripciones <span class="nbadge" id="badge-venc">0</span></div>
-      <div class="nav-item" onclick="nav('cuentas')"><i class="ti ti-mail"></i> Cuentas</div>
+      <div class="nav-item" onclick="nav('precios')"><i class="ti ti-tag"></i> Precios de servicios</div>
+      <div class="nav-item" onclick="nav('cuentas')"><i class="ti ti-mail"></i> Cuentas / Correos</div>
       <div class="nav-item" onclick="nav('proveedores')"><i class="ti ti-building-store"></i> Proveedores</div>
-
       <div class="nav-sec">Finanzas</div>
       <div class="nav-item" onclick="nav('pagos')"><i class="ti ti-cash"></i> Pagos</div>
       <div class="nav-item" onclick="nav('dolar')"><i class="ti ti-currency-dollar"></i> Tipo de cambio</div>
-
       <div class="nav-sec">Sistema</div>
       <div class="nav-item" onclick="nav('schema')"><i class="ti ti-database"></i> Base de datos</div>
       <div class="nav-item" onclick="nav('tutorial')"><i class="ti ti-help-circle"></i> Ayuda (?)</div>
     </nav>
   </div>
 
-  <!-- MAIN -->
   <div id="main">
-    <!-- CONFIG BANNER -->
     <div id="config-banner">
       <i class="ti ti-settings" style="font-size:16px;flex-shrink:0"></i>
-      <span>Configuración inicial:</span>
+      <span style="white-space:nowrap">Credenciales:</span>
       <input id="inp-url" type="text" placeholder="https://TU_PROYECTO.supabase.co">
       <input id="inp-key" type="text" placeholder="Supabase anon key">
-      <input id="inp-claude" type="text" placeholder="Claude API key (para chat IA)">
+      <input id="inp-claude" type="text" placeholder="Claude API key (opcional)">
       <button class="btn btn-accent" onclick="conectar()"><i class="ti ti-plug"></i> Conectar</button>
     </div>
 
@@ -319,17 +311,17 @@ tr:hover td { background: var(--bg3); }
       <div class="topbar-right">
         <span id="conn-status" style="font-size:11px;color:var(--text3)">● Sin conectar</span>
         <button class="btn" onclick="cargarTodo()"><i class="ti ti-refresh"></i> Actualizar</button>
-        <button class="btn btn-accent" onclick="abrirModal()"><i class="ti ti-plus"></i> Nuevo cliente</button>
+        <button class="btn btn-accent" onclick="abrirNuevoCliente()"><i class="ti ti-plus"></i> Nuevo cliente</button>
       </div>
     </div>
 
     <div id="content">
 
-      <!-- ======= DASHBOARD ======= -->
+      <!-- DASHBOARD -->
       <div class="panel active" id="panel-dashboard">
         <div id="dash-alerts"></div>
-        <div class="stats-grid" id="dash-stats">
-          <div class="stat"><div class="stat-lbl">Total clientes</div><div class="stat-val c-blue" id="s-total">—</div><div class="stat-sub">Registros en la base</div></div>
+        <div class="stats-grid">
+          <div class="stat"><div class="stat-lbl">Total clientes</div><div class="stat-val c-blue" id="s-total">—</div><div class="stat-sub">En la base</div></div>
           <div class="stat"><div class="stat-lbl">Activos</div><div class="stat-val c-ok" id="s-activos">—</div><div class="stat-sub">Con suscripción vigente</div></div>
           <div class="stat"><div class="stat-lbl">Vencen esta semana</div><div class="stat-val c-warn" id="s-semana">—</div><div class="stat-sub">Próximos 7 días</div></div>
           <div class="stat"><div class="stat-lbl">Vencidos sin renovar</div><div class="stat-val c-danger" id="s-vencidos">—</div><div class="stat-sub">Requieren atención</div></div>
@@ -337,170 +329,239 @@ tr:hover td { background: var(--bg3); }
         <div class="two-col">
           <div class="card">
             <h3><i class="ti ti-clock"></i> Próximos vencimientos</h3>
-            <div id="dash-vencimientos"><div style="color:var(--text3);font-size:12px">Conectá Supabase para ver datos reales</div></div>
+            <div id="dash-venc"><div style="color:var(--text3)">Cargando...</div></div>
           </div>
           <div class="card">
-            <h3><i class="ti ti-alert-circle"></i> Perfiles libres</h3>
-            <div id="dash-perfiles"><div style="color:var(--text3);font-size:12px">Sin datos aún</div></div>
+            <h3><i class="ti ti-cash"></i> Resumen financiero</h3>
+            <div id="dash-finanzas"><div style="color:var(--text3)">Cargando...</div></div>
           </div>
         </div>
       </div>
 
-      <!-- ======= ESTADÍSTICAS ======= -->
+      <!-- ESTADÍSTICAS -->
       <div class="panel" id="panel-estadisticas">
-        <!-- Financiero -->
         <div class="three-col">
-          <div class="stat"><div class="stat-lbl">Venta total mensual</div><div class="stat-val c-ok" id="est-venta">—</div><div class="stat-sub">ARS estimado</div></div>
-          <div class="stat"><div class="stat-lbl">Costo proveedores</div><div class="stat-val c-danger" id="est-costo">—</div><div class="stat-sub">ARS estimado</div></div>
+          <div class="stat"><div class="stat-lbl">Venta total mensual</div><div class="stat-val c-ok" id="est-venta">—</div><div class="stat-sub">ARS</div></div>
+          <div class="stat"><div class="stat-lbl">Costo proveedores</div><div class="stat-val c-danger" id="est-costo">—</div><div class="stat-sub">ARS</div></div>
           <div class="stat"><div class="stat-lbl">Ganancia neta</div><div class="stat-val c-ok" id="est-ganancia">—</div><div class="stat-sub" id="est-usd">USD —</div></div>
         </div>
-
         <div class="two-col">
-          <!-- Servicios -->
           <div class="card">
-            <h3><i class="ti ti-device-tv"></i> Distribución por servicio</h3>
-            <div id="est-servicios">
-              <div class="bar-row"><span class="bar-lbl">Netflix</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:#e24b4a"><span>100</span></div></div></div>
-              <div class="bar-row"><span class="bar-lbl">Flujo/Flow</span><div class="bar-track"><div class="bar-fill" style="width:48%;background:#185fa5"><span>48</span></div></div></div>
-              <div class="bar-row"><span class="bar-lbl">Disney+</span><div class="bar-track"><div class="bar-fill" style="width:25%;background:#1d9e75"><span>25</span></div></div></div>
-              <div class="bar-row"><span class="bar-lbl">Max/HBO</span><div class="bar-track"><div class="bar-fill" style="width:5%;background:#534ab7;min-width:28px"><span>5</span></div></div></div>
-              <div class="bar-row"><span class="bar-lbl">Prime Video</span><div class="bar-track"><div class="bar-fill" style="width:5%;background:#639922;min-width:28px"><span>5</span></div></div></div>
-              <div class="bar-row"><span class="bar-lbl">Otros</span><div class="bar-track"><div class="bar-fill" style="width:8%;background:var(--text3);min-width:28px"><span>15</span></div></div></div>
-            </div>
+            <h3><i class="ti ti-device-tv"></i> Clientes por servicio</h3>
+            <div id="est-servicios"><div style="color:var(--text3)">Cargando...</div></div>
           </div>
-
-          <!-- Vencimientos por semana -->
           <div class="card">
             <h3><i class="ti ti-calendar-stats"></i> Vencimientos próximos 30 días</h3>
             <div class="sem-bars" id="est-semanas">
-              <div class="sem-col"><div class="sem-num c-danger">61</div><div class="sem-bar" style="height:80px;background:var(--danger)"></div><div class="sem-lbl">Sem 1<br>1–7/6</div></div>
-              <div class="sem-col"><div class="sem-num c-warn">63</div><div class="sem-bar" style="height:84px;background:var(--warn)"></div><div class="sem-lbl">Sem 2<br>8–14/6</div></div>
-              <div class="sem-col"><div class="sem-num c-blue">36</div><div class="sem-bar" style="height:48px;background:var(--accent2)"></div><div class="sem-lbl">Sem 3<br>15–21/6</div></div>
-              <div class="sem-col"><div class="sem-num c-ok">35</div><div class="sem-bar" style="height:46px;background:var(--accent)"></div><div class="sem-lbl">Sem 4<br>22–30/6</div></div>
+              <div class="sem-col"><div class="sem-num c-danger" id="sem1-n">—</div><div class="sem-bar" id="sem1-b" style="background:var(--danger)"></div><div class="sem-lbl">Sem 1<br>1–7</div></div>
+              <div class="sem-col"><div class="sem-num c-warn" id="sem2-n">—</div><div class="sem-bar" id="sem2-b" style="background:var(--warn)"></div><div class="sem-lbl">Sem 2<br>8–14</div></div>
+              <div class="sem-col"><div class="sem-num c-blue" id="sem3-n">—</div><div class="sem-bar" id="sem3-b" style="background:var(--accent2)"></div><div class="sem-lbl">Sem 3<br>15–21</div></div>
+              <div class="sem-col"><div class="sem-num c-ok" id="sem4-n">—</div><div class="sem-bar" id="sem4-b" style="background:var(--accent)"></div><div class="sem-lbl">Sem 4<br>22–30</div></div>
             </div>
-            <div style="font-size:11px;color:var(--text3);margin-top:12px">⚠️ 124 clientes vencen en las próximas 2 semanas</div>
           </div>
         </div>
-
-        <!-- País + correos -->
-        <div class="three-col" style="margin-top:16px">
-          <div class="stat"><div class="stat-lbl">Argentina</div><div class="stat-val c-blue">158</div><div class="stat-sub">78% del total</div></div>
-          <div class="stat"><div class="stat-lbl">Uruguay</div><div class="stat-val">37</div><div class="stat-sub">18% · pagan en UYU</div></div>
-          <div class="stat"><div class="stat-lbl">Correos únicos</div><div class="stat-val c-warn">112</div><div class="stat-sub">De 203 registros</div></div>
-        </div>
-
-        <!-- Nota financiera -->
-        <div class="alert alert-ok" style="margin-top:16px">
-          <i class="ti ti-info-circle" style="font-size:16px;flex-shrink:0"></i>
-          Los valores financieros son estimativos basados en precios promedio. Una vez que completes las columnas de costo/venta en Supabase, este panel mostrará los números reales.
+        <div class="three-col" style="margin-top:4px">
+          <div class="stat"><div class="stat-lbl">Argentina</div><div class="stat-val c-blue" id="est-arg">—</div><div class="stat-sub">clientes</div></div>
+          <div class="stat"><div class="stat-lbl">Uruguay</div><div class="stat-val" id="est-uru">—</div><div class="stat-sub">clientes · pagan UYU</div></div>
+          <div class="stat"><div class="stat-lbl">Precios cargados</div><div class="stat-val c-warn" id="est-precios">—</div><div class="stat-sub">servicios configurados</div></div>
         </div>
       </div>
 
-      <!-- ======= CHAT IA ======= -->
+      <!-- CHAT IA -->
       <div class="panel" id="panel-chat">
         <div id="chat-wrap">
           <div id="chat-msgs">
-            <div class="msg msg-ai">Hola Rodrigo 👋 Soy tu asistente de gestión MISAKROOS.<br><br>Puedo consultar clientes, vencimientos, perfiles libres, ganancias, cuentas de proveedores y mucho más.<br><br>Una vez conectado Supabase, accedo a datos reales en tiempo real. ¿En qué te ayudo?</div>
+            <div class="msg msg-ai">Hola Rodrigo 👋 Soy tu asistente MISAKROOS.<br><br>Con Supabase conectado accedo a tus datos en tiempo real. Podés preguntarme cualquier cosa sobre clientes, vencimientos, ganancias, cuentas y más.</div>
           </div>
           <div class="sugg-wrap">
             <button class="sugg" onclick="enviarChat('¿Qué clientes vencen esta semana?')">Vencimientos esta semana</button>
-            <button class="sugg" onclick="enviarChat('¿Qué perfiles tengo libres?')">Perfiles sin asignar</button>
-            <button class="sugg" onclick="enviarChat('¿Cuánto gané este mes en ARS y UYU?')">Ganancia del mes</button>
-            <button class="sugg" onclick="enviarChat('¿A qué clientes está asignado marinalsjeka@gmail.com?')">Buscar correo</button>
-            <button class="sugg" onclick="enviarChat('¿Cuándo tengo que renovar con mis proveedores?')">Renovaciones pendientes</button>
+            <button class="sugg" onclick="enviarChat('¿Cuánto gané este mes?')">Ganancia del mes</button>
             <button class="sugg" onclick="enviarChat('Listame los clientes vencidos')">Clientes vencidos</button>
+            <button class="sugg" onclick="enviarChat('¿Cuántos clientes tengo por servicio?')">Clientes por servicio</button>
+            <button class="sugg" onclick="enviarChat('¿Cuándo tengo que renovar con mis proveedores?')">Renovaciones pendientes</button>
           </div>
           <div id="chat-bar">
-            <input id="chat-in" type="text" placeholder="Preguntame cualquier cosa sobre tu negocio..." onkeydown="if(event.key==='Enter')enviarChatBtn()">
+            <input id="chat-in" type="text" placeholder="Preguntame cualquier cosa..." onkeydown="if(event.key==='Enter')enviarChatBtn()">
             <button id="chat-send" onclick="enviarChatBtn()">Enviar</button>
           </div>
         </div>
       </div>
 
-      <!-- ======= CLIENTES ======= -->
+      <!-- CLIENTES -->
       <div class="panel" id="panel-clientes">
         <div class="table-wrap">
-          <div class="tbl-search">
-            <input type="text" placeholder="Buscar por nombre, teléfono..." id="search-clientes" oninput="filtrarClientes()">
-            <select id="fil-pais" onchange="filtrarClientes()"><option value="">Todos los países</option><option>Argentina</option><option>Uruguay</option></select>
-            <select id="fil-estado" onchange="filtrarClientes()"><option value="">Todos los estados</option><option>Activo</option><option>Inactivo</option></select>
+          <div class="tbl-filters">
+            <input type="text" id="fil-q" placeholder="🔍 Buscar nombre, teléfono, correo..." oninput="filtrarClientes()">
+            <select id="fil-pais" onchange="filtrarClientes()">
+              <option value="">Todos los países</option>
+              <option>Argentina</option><option>Uruguay</option><option>Chile</option>
+            </select>
+            <select id="fil-estado" onchange="filtrarClientes()">
+              <option value="">Todos los estados</option>
+              <option>Activo</option><option>Inactivo</option>
+            </select>
+            <select id="fil-servicio" onchange="filtrarClientes()">
+              <option value="">Todos los servicios</option>
+            </select>
+            <select id="fil-venc" onchange="filtrarClientes()">
+              <option value="">Todos los vencimientos</option>
+              <option value="vencido">Vencidos</option>
+              <option value="hoy">Vencen hoy</option>
+              <option value="3">Próximos 3 días</option>
+              <option value="7">Próximos 7 días</option>
+              <option value="15">Próximos 15 días</option>
+              <option value="30">Próximos 30 días</option>
+            </select>
           </div>
-          <div id="tabla-clientes-wrap">
-            <table>
-              <thead><tr><th style="width:20%">Nombre</th><th style="width:18%">Teléfono</th><th style="width:10%">País</th><th style="width:10%">Estado</th><th style="width:14%">Próx. venc.</th><th style="width:10%">Servicios</th><th style="width:10%">Venta</th><th style="width:8%">Acc.</th></tr></thead>
-              <tbody id="tbody-clientes"><tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px">Conectá Supabase para ver clientes</td></tr></tbody>
-            </table>
+          <div class="tbl-filters" style="padding-top:0;gap:6px">
+            <span style="font-size:11px;color:var(--text3)">Ordenar:</span>
+            <button class="sort-btn active" id="sort-nombre" onclick="ordenar('nombre')"><i class="ti ti-sort-ascending"></i> Nombre A→Z</button>
+            <button class="sort-btn" id="sort-venc" onclick="ordenar('venc')"><i class="ti ti-calendar"></i> Vencimiento</button>
+            <button class="sort-btn" id="sort-dias" onclick="ordenar('dias')"><i class="ti ti-clock"></i> Días restantes</button>
+            <button class="sort-btn" id="sort-venta" onclick="ordenar('venta')"><i class="ti ti-cash"></i> Precio venta</button>
+            <button class="sort-btn" id="sort-pais" onclick="ordenar('pais')"><i class="ti ti-world"></i> País</button>
           </div>
+          <div class="tbl-info" id="tbl-info">Cargando...</div>
+          <table>
+            <thead>
+              <tr>
+                <th style="width:18%">Nombre</th>
+                <th style="width:14%">Teléfono</th>
+                <th style="width:8%">País</th>
+                <th style="width:14%">Servicio</th>
+                <th style="width:12%">Vencimiento</th>
+                <th style="width:7%">Días</th>
+                <th style="width:8%">Estado</th>
+                <th style="width:10%">Venta</th>
+                <th style="width:9%">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-clientes">
+              <tr><td colspan="9" style="text-align:center;color:var(--text3);padding:28px">Conectá Supabase para ver clientes</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <!-- ======= SUSCRIPCIONES ======= -->
+      <!-- SUSCRIPCIONES -->
       <div class="panel" id="panel-suscripciones">
         <div class="table-wrap">
-          <div class="tbl-search">
-            <input type="text" placeholder="Buscar cliente, servicio, correo...">
-            <select><option>Todos los estados</option><option>Activo</option><option>Vencido</option></select>
+          <div class="tbl-filters">
+            <input type="text" placeholder="🔍 Buscar cliente, servicio, correo..." id="fil-sus-q" oninput="filtrarSuscripciones()">
+            <select id="fil-sus-estado" onchange="filtrarSuscripciones()">
+              <option value="">Todos</option><option>Activo</option><option value="vencido">Vencidos</option>
+            </select>
           </div>
+          <div class="tbl-info" id="tbl-sus-info">Cargando...</div>
           <table>
-            <thead><tr><th style="width:14%">Cliente</th><th style="width:14%">Servicio</th><th style="width:18%">Correo/cuenta</th><th style="width:10%">Vence</th><th style="width:7%">Días</th><th style="width:9%">Venta</th><th style="width:9%">Costo</th><th style="width:9%">Ganancia</th><th style="width:10%">Estado</th></tr></thead>
-            <tbody id="tbody-suscripciones"><tr><td colspan="9" style="text-align:center;color:var(--text3);padding:24px">Conectá Supabase para ver suscripciones</td></tr></tbody>
+            <thead><tr>
+              <th style="width:14%">Cliente</th>
+              <th style="width:14%">Servicio</th>
+              <th style="width:18%">Correo</th>
+              <th style="width:10%">Vence</th>
+              <th style="width:6%">Días</th>
+              <th style="width:9%">Venta</th>
+              <th style="width:9%">Costo</th>
+              <th style="width:9%">Ganancia</th>
+              <th style="width:11%">Estado</th>
+            </tr></thead>
+            <tbody id="tbody-sus"><tr><td colspan="9" style="text-align:center;color:var(--text3);padding:28px">Conectá Supabase</td></tr></tbody>
           </table>
         </div>
       </div>
 
-      <!-- ======= CUENTAS ======= -->
+      <!-- PRECIOS DE SERVICIOS -->
+      <div class="panel" id="panel-precios">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div>
+            <div style="font-size:14px;font-weight:600">Tabla de precios</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px">Definí el precio de venta y costo de cada servicio. Se usa para el estimativo financiero.</div>
+          </div>
+          <button class="btn btn-accent" onclick="abrirNuevoPrecio()"><i class="ti ti-plus"></i> Nuevo servicio</button>
+        </div>
+        <div class="alert alert-ok" style="margin-bottom:16px">
+          <i class="ti ti-info-circle" style="font-size:16px"></i>
+          Podés crear precios para servicios solos (Netflix, Disney) y combos (Netflix + Disney). Los combos se usan cuando un cliente contrató varios juntos.
+        </div>
+        <div class="precios-grid" id="precios-grid">
+          <div style="color:var(--text3);font-size:13px;padding:20px">Conectá Supabase para ver los precios cargados.</div>
+        </div>
+      </div>
+
+      <!-- CUENTAS -->
       <div class="panel" id="panel-cuentas">
-        <div class="alert alert-d" id="alert-perfiles" style="display:none">
-          <i class="ti ti-alert-circle" style="font-size:16px"></i>
-          <span id="alert-perfiles-txt"></span>
-        </div>
         <div class="table-wrap">
-          <div class="tbl-search">
-            <input type="text" placeholder="Buscar correo o cuenta...">
+          <div class="tbl-filters">
+            <input type="text" placeholder="🔍 Buscar correo o código...">
             <select><option>Todos los servicios</option><option>Netflix</option><option>Disney+</option><option>Flujo</option></select>
+            <select><option>Todos los tipos</option><option>Propia</option><option>Proveedor</option></select>
           </div>
           <table>
-            <thead><tr><th style="width:22%">Correo / Código</th><th style="width:12%">Servicio</th><th style="width:10%">Tipo</th><th style="width:10%">Perfiles</th><th style="width:10%">Libres</th><th style="width:14%">Proveedor</th><th style="width:11%">Renueva</th><th style="width:11%">Costo</th></tr></thead>
-            <tbody id="tbody-cuentas"><tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px">Conectá Supabase para ver cuentas</td></tr></tbody>
+            <thead><tr>
+              <th style="width:24%">Correo / Código</th>
+              <th style="width:12%">Servicio</th>
+              <th style="width:10%">Tipo</th>
+              <th style="width:10%">Cap.</th>
+              <th style="width:14%">Proveedor</th>
+              <th style="width:12%">Renueva</th>
+              <th style="width:10%">Costo</th>
+              <th style="width:8%">Acc.</th>
+            </tr></thead>
+            <tbody id="tbody-cuentas"><tr><td colspan="8" style="text-align:center;color:var(--text3);padding:28px">Conectá Supabase</td></tr></tbody>
           </table>
         </div>
       </div>
 
-      <!-- ======= PROVEEDORES ======= -->
+      <!-- PROVEEDORES -->
       <div class="panel" id="panel-proveedores">
         <div class="table-wrap">
           <table>
-            <thead><tr><th style="width:22%">Proveedor</th><th style="width:14%">Servicio</th><th style="width:14%">Contacto</th><th style="width:10%">Cuentas</th><th style="width:14%">Próx. pago</th><th style="width:13%">Costo total</th><th style="width:13%">Estado</th></tr></thead>
-            <tbody id="tbody-proveedores"><tr><td colspan="7" style="text-align:center;color:var(--text3);padding:24px">Conectá Supabase para ver proveedores</td></tr></tbody>
+            <thead><tr>
+              <th style="width:22%">Proveedor</th>
+              <th style="width:16%">Servicio</th>
+              <th style="width:16%">Contacto</th>
+              <th style="width:10%">Cuentas</th>
+              <th style="width:14%">Notas</th>
+              <th style="width:10%">Acc.</th>
+            </tr></thead>
+            <tbody id="tbody-prov"><tr><td colspan="6" style="text-align:center;color:var(--text3);padding:28px">Conectá Supabase</td></tr></tbody>
           </table>
         </div>
       </div>
 
-      <!-- ======= PAGOS ======= -->
+      <!-- PAGOS -->
       <div class="panel" id="panel-pagos">
         <div class="three-col">
           <div class="stat"><div class="stat-lbl">Cobrado este mes</div><div class="stat-val c-ok" id="p-cobrado">—</div><div class="stat-sub">ARS</div></div>
-          <div class="stat"><div class="stat-lbl">Pagado a proveedores</div><div class="stat-val c-danger" id="p-gasto">—</div><div class="stat-sub">ARS</div></div>
-          <div class="stat"><div class="stat-lbl">Ganancia neta</div><div class="stat-val c-ok" id="p-ganancia">—</div><div class="stat-sub" id="p-usd">USD —</div></div>
+          <div class="stat"><div class="stat-lbl">Pagado proveedores</div><div class="stat-val c-danger" id="p-gasto">—</div><div class="stat-sub">ARS</div></div>
+          <div class="stat"><div class="stat-lbl">Ganancia neta</div><div class="stat-val c-ok" id="p-gan">—</div><div class="stat-sub" id="p-usd">USD —</div></div>
         </div>
         <div class="table-wrap" style="margin-top:16px">
           <table>
-            <thead><tr><th style="width:16%">Cliente</th><th style="width:18%">Concepto</th><th style="width:10%">Fecha</th><th style="width:11%">Monto</th><th style="width:8%">Moneda</th><th style="width:10%">Método</th><th style="width:10%">Estado</th></tr></thead>
-            <tbody id="tbody-pagos"><tr><td colspan="7" style="text-align:center;color:var(--text3);padding:24px">Sin pagos registrados aún</td></tr></tbody>
+            <thead><tr>
+              <th style="width:18%">Cliente</th>
+              <th style="width:20%">Concepto</th>
+              <th style="width:11%">Fecha</th>
+              <th style="width:12%">Monto</th>
+              <th style="width:8%">Moneda</th>
+              <th style="width:12%">Método</th>
+              <th style="width:10%">Estado</th>
+            </tr></thead>
+            <tbody id="tbody-pagos"><tr><td colspan="7" style="text-align:center;color:var(--text3);padding:28px">Sin pagos registrados</td></tr></tbody>
           </table>
         </div>
       </div>
 
-      <!-- ======= TIPO DE CAMBIO ======= -->
+      <!-- TIPO DE CAMBIO -->
       <div class="panel" id="panel-dolar">
         <div class="three-col">
           <div class="stat"><div class="stat-lbl">USD → ARS hoy</div><div class="stat-val" id="tc-ars">—</div><div class="stat-sub" id="tc-fecha">—</div></div>
-          <div class="stat"><div class="stat-lbl">USD → UYU hoy</div><div class="stat-val" id="tc-uyu">—</div><div class="stat-sub">Peso uruguayo</div></div>
-          <div class="stat"><div class="stat-lbl">ARS → UYU</div><div class="stat-val" id="tc-cross">—</div><div class="stat-sub">Calculado automático</div></div>
+          <div class="stat"><div class="stat-lbl">USD → UYU hoy</div><div class="stat-val" id="tc-uyu">—</div></div>
+          <div class="stat"><div class="stat-lbl">ARS → UYU</div><div class="stat-val" id="tc-cross">—</div><div class="stat-sub">Calculado</div></div>
         </div>
         <div class="card" style="margin-top:16px">
           <h3><i class="ti ti-plus"></i> Cargar tipo de cambio del día</h3>
-          <div class="form-row">
+          <div class="form-row" style="max-width:400px">
             <div class="form-group"><label>USD → ARS</label><input id="tc-inp-ars" type="number" placeholder="1255"></div>
             <div class="form-group"><label>USD → UYU</label><input id="tc-inp-uyu" type="number" placeholder="40.2"></div>
           </div>
@@ -508,559 +569,842 @@ tr:hover td { background: var(--bg3); }
         </div>
         <div class="card" style="margin-top:14px">
           <h3><i class="ti ti-history"></i> Historial</h3>
-          <div id="tc-historial">
-            <div class="dolar-row"><span>01/06/2026</span><span>ARS $1.255</span><span>UYU 40.2</span><span class="pill p-g">Manual</span></div>
-          </div>
+          <div id="tc-historial"><div style="color:var(--text3)">Cargando...</div></div>
         </div>
       </div>
 
-      <!-- ======= SCHEMA ======= -->
+      <!-- BASE DE DATOS -->
       <div class="panel" id="panel-schema">
         <div class="schema-grid">
-          <div class="schema-tbl">
-            <div class="schema-hd"><i class="ti ti-users" style="color:var(--accent2)"></i> clientes</div>
-            <div class="schema-row"><span class="f">id <span class="tag tag-pk">PK</span></span><span class="t">serial</span></div>
-            <div class="schema-row"><span class="f">nombre</span><span class="t">text</span></div>
-            <div class="schema-row"><span class="f">telefono</span><span class="t">text</span></div>
-            <div class="schema-row"><span class="f">pais</span><span class="t">text</span></div>
-            <div class="schema-row"><span class="f">estado</span><span class="t">text</span></div>
-            <div class="schema-row"><span class="f">notas</span><span class="t">text</span></div>
-            <div class="schema-row"><span class="f">creado_en</span><span class="t">timestamptz</span></div>
+          <div class="schema-tbl"><div class="schema-hd"><i class="ti ti-users" style="color:var(--accent2)"></i> clientes</div>
+            <div class="schema-row"><span>id <span class="tag tag-pk">PK</span></span><span style="color:var(--text3)">serial</span></div>
+            <div class="schema-row"><span>nombre</span><span style="color:var(--text3)">text</span></div>
+            <div class="schema-row"><span>telefono</span><span style="color:var(--text3)">text</span></div>
+            <div class="schema-row"><span>pais</span><span style="color:var(--text3)">text</span></div>
+            <div class="schema-row"><span>estado</span><span style="color:var(--text3)">text</span></div>
+            <div class="schema-row"><span>notas</span><span style="color:var(--text3)">text</span></div>
           </div>
-          <div class="schema-tbl">
-            <div class="schema-hd"><i class="ti ti-building-store" style="color:var(--warn)"></i> proveedores</div>
-            <div class="schema-row"><span class="f">id <span class="tag tag-pk">PK</span></span><span class="t">serial</span></div>
-            <div class="schema-row"><span class="f">nombre</span><span class="t">text</span></div>
-            <div class="schema-row"><span class="f">contacto</span><span class="t">text</span></div>
-            <div class="schema-row"><span class="f">servicio</span><span class="t">text</span></div>
-            <div class="schema-row"><span class="f">notas</span><span class="t">text</span></div>
+          <div class="schema-tbl"><div class="schema-hd"><i class="ti ti-tag" style="color:var(--warn)"></i> precios_servicios</div>
+            <div class="schema-row"><span>id <span class="tag tag-pk">PK</span></span><span style="color:var(--text3)">serial</span></div>
+            <div class="schema-row"><span>servicio</span><span style="color:var(--text3)">text</span></div>
+            <div class="schema-row"><span>slug</span><span style="color:var(--text3)">text unique</span></div>
+            <div class="schema-row"><span>venta</span><span style="color:var(--text3)">numeric</span></div>
+            <div class="schema-row"><span>costo</span><span style="color:var(--text3)">numeric</span></div>
+            <div class="schema-row"><span>moneda</span><span style="color:var(--text3)">ARS/UYU/USD</span></div>
+            <div class="schema-row"><span>es_combo</span><span style="color:var(--text3)">boolean</span></div>
           </div>
-          <div class="schema-tbl">
-            <div class="schema-hd"><i class="ti ti-mail" style="color:var(--accent)"></i> cuentas</div>
-            <div class="schema-row"><span class="f">id <span class="tag tag-pk">PK</span></span><span class="t">serial</span></div>
-            <div class="schema-row"><span class="f">correo</span><span class="t">text</span></div>
-            <div class="schema-row"><span class="f">servicio</span><span class="t">text</span></div>
-            <div class="schema-row"><span class="f">tipo</span><span class="t">text</span></div>
-            <div class="schema-row"><span class="f">proveedor_id <span class="tag tag-fk">FK</span></span><span class="t">integer</span></div>
-            <div class="schema-row"><span class="f">capacidad_total</span><span class="t">integer</span></div>
-            <div class="schema-row"><span class="f">fecha_renovacion</span><span class="t">date</span></div>
-            <div class="schema-row"><span class="f">costo_proveedor</span><span class="t">numeric</span></div>
-            <div class="schema-row"><span class="f">moneda_costo</span><span class="t">text</span></div>
+          <div class="schema-tbl"><div class="schema-hd"><i class="ti ti-mail" style="color:var(--accent)"></i> cuentas</div>
+            <div class="schema-row"><span>id <span class="tag tag-pk">PK</span></span><span style="color:var(--text3)">serial</span></div>
+            <div class="schema-row"><span>correo</span><span style="color:var(--text3)">text</span></div>
+            <div class="schema-row"><span>servicio</span><span style="color:var(--text3)">text</span></div>
+            <div class="schema-row"><span>tipo</span><span style="color:var(--text3)">propia/proveedor</span></div>
+            <div class="schema-row"><span>proveedor_id <span class="tag tag-fk">FK</span></span><span style="color:var(--text3)">integer</span></div>
+            <div class="schema-row"><span>capacidad_total</span><span style="color:var(--text3)">integer</span></div>
+            <div class="schema-row"><span>costo_proveedor</span><span style="color:var(--text3)">numeric</span></div>
           </div>
-          <div class="schema-tbl">
-            <div class="schema-hd"><i class="ti ti-layout-grid" style="color:#a78bfa"></i> perfiles</div>
-            <div class="schema-row"><span class="f">id <span class="tag tag-pk">PK</span></span><span class="t">serial</span></div>
-            <div class="schema-row"><span class="f">cuenta_id <span class="tag tag-fk">FK</span></span><span class="t">integer</span></div>
-            <div class="schema-row"><span class="f">nombre_perfil</span><span class="t">text</span></div>
-            <div class="schema-row"><span class="f">estado</span><span class="t">libre / ocupado</span></div>
+          <div class="schema-tbl"><div class="schema-hd"><i class="ti ti-calendar-check" style="color:var(--accent)"></i> suscripciones</div>
+            <div class="schema-row"><span>id <span class="tag tag-pk">PK</span></span><span style="color:var(--text3)">serial</span></div>
+            <div class="schema-row"><span>cliente_id <span class="tag tag-fk">FK</span></span><span style="color:var(--text3)">integer</span></div>
+            <div class="schema-row"><span>cuenta_id <span class="tag tag-fk">FK</span></span><span style="color:var(--text3)">integer</span></div>
+            <div class="schema-row"><span>precio_id <span class="tag tag-fk">FK</span></span><span style="color:var(--text3)">integer</span></div>
+            <div class="schema-row"><span>servicio</span><span style="color:var(--text3)">text</span></div>
+            <div class="schema-row"><span>fecha_vencimiento</span><span style="color:var(--text3)">date</span></div>
+            <div class="schema-row"><span>venta</span><span style="color:var(--text3)">numeric</span></div>
+            <div class="schema-row"><span>ganancia <span class="tag tag-c">calc</span></span><span style="color:var(--text3)">venta−costo</span></div>
           </div>
-          <div class="schema-tbl">
-            <div class="schema-hd"><i class="ti ti-calendar-check" style="color:var(--accent)"></i> suscripciones</div>
-            <div class="schema-row"><span class="f">id <span class="tag tag-pk">PK</span></span><span class="t">serial</span></div>
-            <div class="schema-row"><span class="f">cliente_id <span class="tag tag-fk">FK</span></span><span class="t">integer</span></div>
-            <div class="schema-row"><span class="f">perfil_id <span class="tag tag-fk">FK</span></span><span class="t">integer</span></div>
-            <div class="schema-row"><span class="f">cuenta_id <span class="tag tag-fk">FK</span></span><span class="t">integer</span></div>
-            <div class="schema-row"><span class="f">servicio</span><span class="t">text</span></div>
-            <div class="schema-row"><span class="f">fecha_inicio</span><span class="t">date</span></div>
-            <div class="schema-row"><span class="f">fecha_vencimiento</span><span class="t">date</span></div>
-            <div class="schema-row"><span class="f">venta</span><span class="t">numeric</span></div>
-            <div class="schema-row"><span class="f">moneda_venta</span><span class="t">ARS / UYU / USD</span></div>
-            <div class="schema-row"><span class="f">ganancia <span class="tag tag-c">calc</span></span><span class="t">venta − costo</span></div>
+          <div class="schema-tbl"><div class="schema-hd"><i class="ti ti-currency-dollar" style="color:#4ade80"></i> tipo_cambio</div>
+            <div class="schema-row"><span>id <span class="tag tag-pk">PK</span></span><span style="color:var(--text3)">serial</span></div>
+            <div class="schema-row"><span>fecha</span><span style="color:var(--text3)">date (unique)</span></div>
+            <div class="schema-row"><span>usd_ars</span><span style="color:var(--text3)">numeric</span></div>
+            <div class="schema-row"><span>usd_uyu</span><span style="color:var(--text3)">numeric</span></div>
           </div>
-          <div class="schema-tbl">
-            <div class="schema-hd"><i class="ti ti-currency-dollar" style="color:#4ade80"></i> tipo_cambio</div>
-            <div class="schema-row"><span class="f">id <span class="tag tag-pk">PK</span></span><span class="t">serial</span></div>
-            <div class="schema-row"><span class="f">fecha</span><span class="t">date (unique)</span></div>
-            <div class="schema-row"><span class="f">usd_ars</span><span class="t">numeric</span></div>
-            <div class="schema-row"><span class="f">usd_uyu</span><span class="t">numeric</span></div>
+          <div class="schema-tbl"><div class="schema-hd"><i class="ti ti-history" style="color:var(--text3)"></i> movimientos</div>
+            <div class="schema-row"><span>id <span class="tag tag-pk">PK</span></span><span style="color:var(--text3)">serial</span></div>
+            <div class="schema-row"><span>tipo</span><span style="color:var(--text3)">text</span></div>
+            <div class="schema-row"><span>cliente_id <span class="tag tag-fk">FK</span></span><span style="color:var(--text3)">integer</span></div>
+            <div class="schema-row"><span>descripcion</span><span style="color:var(--text3)">text</span></div>
+            <div class="schema-row"><span>fecha</span><span style="color:var(--text3)">timestamptz</span></div>
           </div>
-          <div class="schema-tbl">
-            <div class="schema-hd"><i class="ti ti-history" style="color:var(--text3)"></i> movimientos</div>
-            <div class="schema-row"><span class="f">id <span class="tag tag-pk">PK</span></span><span class="t">serial</span></div>
-            <div class="schema-row"><span class="f">tipo</span><span class="t">text</span></div>
-            <div class="schema-row"><span class="f">cliente_id <span class="tag tag-fk">FK</span></span><span class="t">integer</span></div>
-            <div class="schema-row"><span class="f">cuenta_id <span class="tag tag-fk">FK</span></span><span class="t">integer</span></div>
-            <div class="schema-row"><span class="f">descripcion</span><span class="t">text</span></div>
-            <div class="schema-row"><span class="f">datos_extra</span><span class="t">jsonb</span></div>
-            <div class="schema-row"><span class="f">fecha</span><span class="t">timestamptz</span></div>
-          </div>
-          <div class="schema-tbl">
-            <div class="schema-hd"><i class="ti ti-cash" style="color:var(--accent2)"></i> pagos</div>
-            <div class="schema-row"><span class="f">id <span class="tag tag-pk">PK</span></span><span class="t">serial</span></div>
-            <div class="schema-row"><span class="f">cliente_id <span class="tag tag-fk">FK</span></span><span class="t">integer</span></div>
-            <div class="schema-row"><span class="f">suscripcion_id <span class="tag tag-fk">FK</span></span><span class="t">integer</span></div>
-            <div class="schema-row"><span class="f">monto</span><span class="t">numeric</span></div>
-            <div class="schema-row"><span class="f">moneda</span><span class="t">text</span></div>
-            <div class="schema-row"><span class="f">tipo_cambio_id <span class="tag tag-fk">FK</span></span><span class="t">integer</span></div>
-            <div class="schema-row"><span class="f">metodo</span><span class="t">text</span></div>
-            <div class="schema-row"><span class="f">estado</span><span class="t">pagado / pendiente</span></div>
-          </div>
+        </div>
+        <div class="alert alert-w" style="margin-top:16px">
+          <i class="ti ti-alert-triangle" style="font-size:16px"></i>
+          <span>Para habilitar la tabla <strong>precios_servicios</strong> en Supabase, ejecutá el SQL que está más abajo en el tutorial.</span>
         </div>
       </div>
 
-      <!-- ======= TUTORIAL ======= -->
+      <!-- TUTORIAL -->
       <div class="panel" id="panel-tutorial">
         <div class="tut-grid">
           <div class="tut-card">
             <div class="tut-icon"><i class="ti ti-rocket"></i></div>
-            <h3>Primeros pasos</h3>
-            <ul>
-              <li>Completá las credenciales de Supabase arriba y hacé click en "Conectar"</li>
-              <li>Pegá el SQL de <code>01_schema.sql</code> en Supabase → SQL Editor y ejecutalo</li>
-              <li>Exportá tu Sheets como CSV y corrí <code>python 02_migrar.py</code></li>
-              <li>Volvé acá y hacé click en "Actualizar" para ver tus datos</li>
-            </ul>
+            <h3>SQL para tabla de precios — ejecutar en Supabase</h3>
+            <pre style="background:var(--bg3);padding:12px;border-radius:8px;font-size:11px;color:var(--accent);overflow-x:auto;line-height:1.5">CREATE TABLE IF NOT EXISTS precios_servicios (
+  id        SERIAL PRIMARY KEY,
+  servicio  TEXT NOT NULL,
+  slug      TEXT UNIQUE,
+  venta     NUMERIC(10,2) DEFAULT 0,
+  costo     NUMERIC(10,2) DEFAULT 0,
+  moneda    TEXT DEFAULT 'ARS',
+  es_combo  BOOLEAN DEFAULT false,
+  descripcion TEXT,
+  creado_en TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE precios_servicios
+  DISABLE ROW LEVEL SECURITY;</pre>
           </div>
           <div class="tut-card">
             <div class="tut-icon"><i class="ti ti-robot"></i></div>
             <h3>Chat IA — qué podés preguntar</h3>
             <ul>
               <li>¿Qué clientes vencen esta semana?</li>
-              <li>¿Qué perfiles tengo libres ahora?</li>
-              <li>¿A qué clientes está asignado este correo?</li>
               <li>¿Cuánto gané este mes en ARS y UYU?</li>
-              <li>Cambiá a Juan del correo X al correo Y</li>
-              <li>Agregá a María con Netflix, vence el 15 de junio</li>
+              <li>Listame los clientes vencidos</li>
+              <li>¿Cuántos clientes tengo por servicio?</li>
               <li>¿Cuándo tengo que renovar con mis proveedores?</li>
-              <li>¿Qué cuentas de Netflix tienen perfiles libres?</li>
+              <li>¿Qué correos están asignados a más de un cliente?</li>
             </ul>
           </div>
           <div class="tut-card">
-            <div class="tut-icon"><i class="ti ti-mail"></i></div>
-            <h3>Gestión de cuentas y correos</h3>
+            <div class="tut-icon"><i class="ti ti-tag"></i></div>
+            <h3>Cómo usar los precios de servicios</h3>
             <ul>
-              <li>Ver a qué clientes está asignado cada correo</li>
-              <li>Detectar perfiles libres automáticamente</li>
-              <li>Saber si una cuenta es propia o de proveedor</li>
-              <li>Ver cuándo tenés que renovar cada cuenta con el proveedor</li>
-              <li>Registrar el costo de cada perfil/cuenta por separado</li>
-              <li>Historial de cambios de cuenta por cliente</li>
+              <li>Andá a "Precios de servicios" en el menú</li>
+              <li>Creá un precio por cada servicio que vendés</li>
+              <li>Para combos (ej: Netflix + Disney) marcalos como combo</li>
+              <li>Al crear un cliente nuevo podés elegir el precio del listado</li>
+              <li>El estimativo financiero usa estos precios automáticamente</li>
             </ul>
           </div>
           <div class="tut-card">
-            <div class="tut-icon"><i class="ti ti-currency-dollar"></i></div>
-            <h3>Finanzas y tipo de cambio</h3>
+            <div class="tut-icon"><i class="ti ti-users"></i></div>
+            <h3>Filtros de clientes</h3>
             <ul>
-              <li>Cargar el valor del dólar diario (USD→ARS y USD→UYU)</li>
-              <li>Ver ganancia en ARS, UYU y USD por cliente</li>
-              <li>Historial de pagos recibidos y pendientes</li>
-              <li>Costo total por proveedor y por servicio</li>
-              <li>Ganancia neta del mes con conversión automática</li>
-              <li>Comparar meses anteriores en estadísticas</li>
-            </ul>
-          </div>
-          <div class="tut-card">
-            <div class="tut-icon"><i class="ti ti-history"></i></div>
-            <h3>Trazabilidad</h3>
-            <ul>
-              <li>Registro automático de cada cambio de cuenta</li>
-              <li>Detección de perfiles que quedaron libres tras un movimiento</li>
-              <li>Auditar discrepancias entre clientes y cuentas</li>
-              <li>Ver quién usaba qué correo en el pasado</li>
-            </ul>
-          </div>
-          <div class="tut-card">
-            <div class="tut-icon"><i class="ti ti-brand-whatsapp"></i></div>
-            <h3>WhatsApp y recordatorios</h3>
-            <ul>
-              <li>Link directo a WhatsApp desde cada cliente</li>
-              <li>El chat IA puede redactar mensajes de renovación</li>
-              <li>Filtrar clientes por días restantes para avisar en lote</li>
-              <li>Ver todos los que vencen en un día puntual</li>
+              <li>Buscar por nombre, teléfono o correo</li>
+              <li>Filtrar por país (Argentina / Uruguay)</li>
+              <li>Filtrar por estado (Activo / Inactivo)</li>
+              <li>Filtrar por servicio contratado</li>
+              <li>Filtrar por vencimiento (vencidos, hoy, 7 días, etc.)</li>
+              <li>Ordenar por nombre, vencimiento, días restantes, precio</li>
             </ul>
           </div>
         </div>
       </div>
 
-    </div><!-- /content -->
-  </div><!-- /main -->
-</div><!-- /app -->
+    </div>
+  </div>
+</div>
 
 <script>
-// ============================================================
-// ESTADO GLOBAL
-// ============================================================
-let SB = null;
-let CLAUDE_KEY = '';
-let USD_ARS = 1255;
-let USD_UYU = 40.2;
-let todosClientes = [];
+let SB = null, CLAUDE_KEY = '', USD_ARS = 1255, USD_UYU = 40.2;
+let todosClientes = [], todasSus = [], todosPrecios = [];
+let sortField = 'nombre', sortDir = 1;
 let chatHistory = [];
 
 const TITLES = {
   dashboard:'Dashboard', estadisticas:'Estadísticas', chat:'Chat IA',
-  clientes:'Clientes', suscripciones:'Suscripciones', cuentas:'Cuentas / Correos',
-  proveedores:'Proveedores', pagos:'Pagos', dolar:'Tipo de cambio',
-  schema:'Estructura de la base de datos', tutorial:'Ayuda (?)'
+  clientes:'Clientes', suscripciones:'Suscripciones', precios:'Precios de servicios',
+  cuentas:'Cuentas / Correos', proveedores:'Proveedores', pagos:'Pagos',
+  dolar:'Tipo de cambio', schema:'Base de datos', tutorial:'Ayuda (?)'
 };
 
-// ============================================================
-// NAVEGACIÓN
-// ============================================================
 function nav(id) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('panel-' + id).classList.add('active');
   document.getElementById('topbar-title').textContent = TITLES[id];
-  // marcar nav activo
   document.querySelectorAll('.nav-item').forEach(n => {
     if (n.textContent.trim().startsWith(TITLES[id].split(' ')[0])) n.classList.add('active');
   });
 }
 
-// ============================================================
-// CONEXIÓN SUPABASE
-// ============================================================
+// ── CONEXIÓN ──────────────────────────────────────────────
 async function conectar() {
   const url = document.getElementById('inp-url').value.trim();
   const key = document.getElementById('inp-key').value.trim();
   CLAUDE_KEY = document.getElementById('inp-claude').value.trim();
-
   if (!url || !key) { alert('Completá URL y Key de Supabase'); return; }
-
   try {
     SB = supabase.createClient(url, key);
-    // test de conexión
     const { error } = await SB.from('clientes').select('id').limit(1);
     if (error) throw error;
-
     document.getElementById('conn-status').textContent = '● Conectado';
     document.getElementById('conn-status').style.color = 'var(--accent)';
     document.getElementById('config-banner').style.display = 'none';
     await cargarTodo();
   } catch(e) {
-    alert('Error al conectar: ' + e.message + '\n\nVerificá URL y key de Supabase.');
+    alert('Error al conectar: ' + e.message);
   }
 }
 
-// ============================================================
-// CARGA PRINCIPAL
-// ============================================================
+// ── CARGA TOTAL ───────────────────────────────────────────
 async function cargarTodo() {
   if (!SB) return;
   await Promise.all([
-    cargarDashboard(),
     cargarClientes(),
     cargarSuscripciones(),
+    cargarPrecios(),
     cargarProveedores(),
+    cargarCuentas(),
     cargarTC(),
   ]);
+  actualizarDashboard();
+  actualizarEstadisticas();
 }
 
-// ============================================================
-// DASHBOARD
-// ============================================================
-async function cargarDashboard() {
-  const hoy = new Date().toISOString().split('T')[0];
-  const en7 = new Date(Date.now() + 7*86400000).toISOString().split('T')[0];
-
-  const [{ count: total }, { count: activos }, { data: semana }, { data: vencidos }] = await Promise.all([
-    SB.from('clientes').select('*', { count: 'exact', head: true }),
-    SB.from('clientes').select('*', { count: 'exact', head: true }).eq('estado','Activo'),
-    SB.from('suscripciones').select('cliente_id, fecha_vencimiento, cuentas(correo)').gte('fecha_vencimiento', hoy).lte('fecha_vencimiento', en7).eq('estado','Activo'),
-    SB.from('suscripciones').select('cliente_id, fecha_vencimiento').lt('fecha_vencimiento', hoy).eq('estado','Activo'),
-  ]);
-
-  document.getElementById('s-total').textContent = total || 0;
-  document.getElementById('s-activos').textContent = activos || 0;
-  document.getElementById('s-semana').textContent = semana?.length || 0;
-  document.getElementById('s-vencidos').textContent = vencidos?.length || 0;
-  document.getElementById('badge-venc').textContent = (semana?.length || 0) + (vencidos?.length || 0);
-
-  // Alertas
-  const alerts = document.getElementById('dash-alerts');
-  alerts.innerHTML = '';
-  if (vencidos?.length) {
-    alerts.innerHTML += `<div class="alert alert-d"><i class="ti ti-alert-circle" style="font-size:16px"></i> <strong>${vencidos.length} suscripciones vencidas</strong> sin renovar. Revisalas en el panel de Suscripciones.</div>`;
-  }
-  if (semana?.length) {
-    alerts.innerHTML += `<div class="alert alert-w"><i class="ti ti-clock" style="font-size:16px"></i> <strong>${semana.length} suscripciones vencen en los próximos 7 días.</strong> Considerá enviar recordatorios.</div>`;
-  }
-}
-
-// ============================================================
-// CLIENTES
-// ============================================================
+// ── CLIENTES ──────────────────────────────────────────────
 async function cargarClientes() {
-  const { data, error } = await SB.from('clientes').select('*, suscripciones(id, servicio, fecha_vencimiento, venta, moneda_venta)').order('nombre');
-  if (error || !data) return;
+  const { data } = await SB.from('clientes')
+    .select('*, suscripciones(id, servicio, fecha_vencimiento, venta, moneda_venta, cuentas(correo))')
+    .order('nombre');
+  if (!data) return;
   todosClientes = data;
-  renderClientes(data);
+  poblarFiltroServicios();
+  filtrarClientes();
 }
 
-function renderClientes(data) {
-  const hoy = new Date();
+function poblarFiltroServicios() {
+  const servicios = new Set();
+  todosClientes.forEach(c => (c.suscripciones || []).forEach(s => {
+    if (s.servicio) servicios.add(s.servicio.toLowerCase().trim());
+  }));
+  const sel = document.getElementById('fil-servicio');
+  const actual = sel.value;
+  sel.innerHTML = '<option value="">Todos los servicios</option>';
+  [...servicios].sort().forEach(sv => {
+    sel.innerHTML += `<option value="${sv}">${sv}</option>`;
+  });
+  sel.value = actual;
+}
+
+function filtrarClientes() {
+  const q       = document.getElementById('fil-q').value.toLowerCase();
+  const pais    = document.getElementById('fil-pais').value;
+  const estado  = document.getElementById('fil-estado').value;
+  const servicio= document.getElementById('fil-servicio').value;
+  const vencFil = document.getElementById('fil-venc').value;
+  const hoy     = new Date(); hoy.setHours(0,0,0,0);
+
+  let lista = todosClientes.filter(c => {
+    const subs = c.suscripciones || [];
+    const correos = subs.map(s => s.cuentas?.correo || '').join(' ').toLowerCase();
+    const matchQ = !q || c.nombre?.toLowerCase().includes(q)
+                      || c.telefono?.includes(q)
+                      || correos.includes(q);
+    const matchP  = !pais    || c.pais === pais;
+    const matchE  = !estado  || c.estado === estado;
+    const matchSv = !servicio|| subs.some(s => s.servicio?.toLowerCase().includes(servicio));
+    let matchV = true;
+    if (vencFil) {
+      const proxVenc = subs.filter(s => s.fecha_vencimiento)
+        .map(s => new Date(s.fecha_vencimiento))
+        .sort((a,b) => a - b)[0];
+      if (!proxVenc) { matchV = false; }
+      else {
+        const diff = Math.ceil((proxVenc - hoy) / 86400000);
+        if (vencFil === 'vencido') matchV = diff < 0;
+        else if (vencFil === 'hoy') matchV = diff === 0;
+        else matchV = diff >= 0 && diff <= parseInt(vencFil);
+      }
+    }
+    return matchQ && matchP && matchE && matchSv && matchV;
+  });
+
+  // ordenar
+  lista = lista.sort((a, b) => {
+    const sa = a.suscripciones || [], sb = b.suscripciones || [];
+    const va = sa.filter(s=>s.fecha_vencimiento).map(s=>new Date(s.fecha_vencimiento)).sort((x,y)=>x-y)[0];
+    const vb = sb.filter(s=>s.fecha_vencimiento).map(s=>new Date(s.fecha_vencimiento)).sort((x,y)=>x-y)[0];
+    if (sortField === 'nombre') return sortDir * (a.nombre||'').localeCompare(b.nombre||'');
+    if (sortField === 'venc') {
+      if (!va && !vb) return 0;
+      if (!va) return 1; if (!vb) return -1;
+      return sortDir * (va - vb);
+    }
+    if (sortField === 'dias') {
+      const da = va ? Math.ceil((va - hoy)/86400000) : 9999;
+      const db = vb ? Math.ceil((vb - hoy)/86400000) : 9999;
+      return sortDir * (da - db);
+    }
+    if (sortField === 'venta') {
+      const va2 = sa.reduce((acc,s)=>acc+(parseFloat(s.venta)||0),0);
+      const vb2 = sb.reduce((acc,s)=>acc+(parseFloat(s.venta)||0),0);
+      return sortDir * (vb2 - va2);
+    }
+    if (sortField === 'pais') return sortDir * (a.pais||'').localeCompare(b.pais||'');
+    return 0;
+  });
+
+  document.getElementById('tbl-info').textContent = `Mostrando ${lista.length} de ${todosClientes.length} clientes`;
+  renderClientes(lista);
+}
+
+function renderClientes(lista) {
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
   const tbody = document.getElementById('tbody-clientes');
-  if (!data.length) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px">Sin clientes en la base</td></tr>';
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:28px">Sin clientes para mostrar</td></tr>';
     return;
   }
-  tbody.innerHTML = data.map(c => {
+  tbody.innerHTML = lista.map(c => {
     const subs = c.suscripciones || [];
-    const proximaVenc = subs.filter(s => s.fecha_vencimiento).sort((a,b) => new Date(a.fecha_vencimiento) - new Date(b.fecha_vencimiento))[0];
-    const dias = proximaVenc ? Math.ceil((new Date(proximaVenc.fecha_vencimiento) - hoy) / 86400000) : null;
-    const venta = subs.reduce((a,s) => a + (parseFloat(s.venta)||0), 0);
-    const estadoPill = c.estado === 'Activo'
-      ? '<span class="pill p-ok">Activo</span>'
-      : '<span class="pill p-d">Inactivo</span>';
-    const diasPill = dias === null ? '—'
-      : dias < 0 ? `<span class="pill p-d">${dias}d</span>`
-      : dias <= 7 ? `<span class="pill p-w">${dias}d</span>`
+    const pv = subs.filter(s=>s.fecha_vencimiento).map(s=>new Date(s.fecha_vencimiento)).sort((a,b)=>a-b)[0];
+    const dias = pv ? Math.ceil((pv - hoy)/86400000) : null;
+    const venta = subs.reduce((acc,s)=>acc+(parseFloat(s.venta)||0),0);
+    const servs = [...new Set(subs.map(s=>s.servicio).filter(Boolean))].join(', ');
+    const dPill = dias===null ? '—'
+      : dias<0  ? `<span class="pill p-d">${dias}d</span>`
+      : dias<=3 ? `<span class="pill p-d">${dias}d</span>`
+      : dias<=7 ? `<span class="pill p-w">${dias}d</span>`
       : `<span class="pill p-ok">${dias}d</span>`;
-    const wa = c.telefono ? `<a href="https://wa.me/${c.telefono}" target="_blank"><button class="icon-btn wa-btn"><i class="ti ti-brand-whatsapp"></i></button></a>` : '';
+    const ePill = c.estado==='Activo' ? '<span class="pill p-ok">Activo</span>' : '<span class="pill p-d">Inactivo</span>';
+    const pPill = c.pais==='Uruguay' ? '<span class="pill p-g">UY</span>' : '<span class="pill p-b">AR</span>';
+    const wa = c.telefono ? `<button class="icon-btn wa" onclick="window.open('https://wa.me/${c.telefono}','_blank')" title="WhatsApp"><i class="ti ti-brand-whatsapp"></i></button>` : '';
     return `<tr>
-      <td>${c.nombre}</td>
-      <td>${c.telefono || '—'}</td>
-      <td><span class="pill ${c.pais==='Uruguay'?'p-g':'p-b'}">${c.pais||'ARG'}</span></td>
-      <td>${estadoPill}</td>
-      <td>${proximaVenc ? proximaVenc.fecha_vencimiento : '—'}</td>
-      <td>${subs.length}</td>
+      <td style="font-weight:500">${c.nombre||'—'}</td>
+      <td style="font-family:monospace;font-size:11px">${c.telefono||'—'}</td>
+      <td>${pPill}</td>
+      <td style="font-size:11px">${servs||'—'}</td>
+      <td style="font-size:11px">${pv ? pv.toLocaleDateString('es-AR') : '—'}</td>
+      <td>${dPill}</td>
+      <td>${ePill}</td>
       <td>$${venta.toLocaleString('es-AR')}</td>
-      <td>${wa}</td>
+      <td style="display:flex;gap:2px;align-items:center">
+        ${wa}
+        <button class="icon-btn edit" onclick="editarCliente(${c.id})" title="Editar"><i class="ti ti-edit"></i></button>
+        <button class="icon-btn" onclick="verCliente(${c.id})" title="Ver detalle"><i class="ti ti-eye"></i></button>
+      </td>
     </tr>`;
   }).join('');
 }
 
-function filtrarClientes() {
-  const q = document.getElementById('search-clientes').value.toLowerCase();
-  const pais = document.getElementById('fil-pais').value;
-  const estado = document.getElementById('fil-estado').value;
-  const filtrados = todosClientes.filter(c => {
-    const match = !q || c.nombre?.toLowerCase().includes(q) || c.telefono?.includes(q);
-    const matchPais = !pais || c.pais === pais;
-    const matchEst = !estado || c.estado === estado;
-    return match && matchPais && matchEst;
-  });
-  renderClientes(filtrados);
+function ordenar(campo) {
+  if (sortField === campo) sortDir *= -1;
+  else { sortField = campo; sortDir = 1; }
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sort-' + campo)?.classList.add('active');
+  filtrarClientes();
 }
 
-// ============================================================
-// SUSCRIPCIONES
-// ============================================================
+// ── VER CLIENTE ───────────────────────────────────────────
+function verCliente(id) {
+  const c = todosClientes.find(x => x.id === id);
+  if (!c) return;
+  const subs = c.suscripciones || [];
+  const hoy = new Date();
+  let html = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em">Teléfono</div><div style="margin-top:4px">${c.telefono||'—'}</div></div>
+      <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em">País</div><div style="margin-top:4px">${c.pais||'—'}</div></div>
+      <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em">Estado</div><div style="margin-top:4px">${c.estado||'—'}</div></div>
+      <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em">Notas</div><div style="margin-top:4px">${c.notas||'—'}</div></div>
+    </div>
+    <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Suscripciones</div>`;
+  if (!subs.length) {
+    html += '<div style="color:var(--text3);font-size:12px">Sin suscripciones cargadas</div>';
+  } else {
+    html += subs.map(s => {
+      const dias = s.fecha_vencimiento ? Math.ceil((new Date(s.fecha_vencimiento) - hoy)/86400000) : null;
+      const dColor = dias===null?'var(--text3)':dias<0?'var(--danger)':dias<=7?'var(--warn)':'var(--accent)';
+      return `<div style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-weight:600">${s.servicio||'—'}</span>
+          <span style="color:${dColor};font-size:12px">${dias!==null?dias+'d restantes':'Sin fecha'}</span>
+        </div>
+        <div style="font-size:11px;color:var(--text3)">
+          Vence: ${s.fecha_vencimiento||'—'} · Correo: ${s.cuentas?.correo||'—'} · Venta: $${parseFloat(s.venta||0).toLocaleString()}
+        </div>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('ver-titulo').innerHTML = `${c.nombre} <button onclick="cerrarModal('modal-ver')"><i class="ti ti-x"></i></button>`;
+  document.getElementById('ver-contenido').innerHTML = html;
+  document.getElementById('ver-editar-btn').onclick = () => { cerrarModal('modal-ver'); editarCliente(id); };
+  document.getElementById('modal-ver').classList.add('open');
+}
+
+// ── MODAL CLIENTE ─────────────────────────────────────────
+function abrirNuevoCliente() {
+  document.getElementById('f-id').value = '';
+  document.getElementById('modal-titulo').innerHTML = 'Nuevo cliente <button onclick="cerrarModal(\'modal-cliente\')"><i class="ti ti-x"></i></button>';
+  ['f-nombre','f-tel','f-servicio','f-correo','f-notas'].forEach(id => document.getElementById(id).value = '');
+  ['f-venta'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-pais').value = 'Argentina';
+  document.getElementById('f-estado').value = 'Activo';
+  document.getElementById('f-moneda').value = 'ARS';
+  document.getElementById('f-inicio').value = new Date().toISOString().split('T')[0];
+  document.getElementById('f-venc').value = '';
+  poblarSelectPrecios();
+  document.getElementById('modal-cliente').classList.add('open');
+}
+
+function editarCliente(id) {
+  const c = todosClientes.find(x => x.id === id);
+  if (!c) return;
+  const s = (c.suscripciones||[])[0] || {};
+  document.getElementById('f-id').value = id;
+  document.getElementById('modal-titulo').innerHTML = `Editar cliente <button onclick="cerrarModal('modal-cliente')"><i class="ti ti-x"></i></button>`;
+  document.getElementById('f-nombre').value = c.nombre || '';
+  document.getElementById('f-tel').value = c.telefono || '';
+  document.getElementById('f-pais').value = c.pais || 'Argentina';
+  document.getElementById('f-estado').value = c.estado || 'Activo';
+  document.getElementById('f-notas').value = c.notas || '';
+  document.getElementById('f-servicio').value = s.servicio || '';
+  document.getElementById('f-venta').value = s.venta || '';
+  document.getElementById('f-moneda').value = s.moneda_venta || 'ARS';
+  document.getElementById('f-inicio').value = s.fecha_inicio || '';
+  document.getElementById('f-venc').value = s.fecha_vencimiento || '';
+  document.getElementById('f-correo').value = s.cuentas?.correo || '';
+  poblarSelectPrecios();
+  document.getElementById('modal-cliente').classList.add('open');
+}
+
+function poblarSelectPrecios() {
+  const sel = document.getElementById('f-servicio-sel');
+  sel.innerHTML = '<option value="">Elegir de la lista...</option>';
+  todosPrecios.forEach(p => {
+    sel.innerHTML += `<option value="${p.slug}" data-venta="${p.venta}" data-moneda="${p.moneda}">${p.servicio} — $${parseFloat(p.venta).toLocaleString()} ${p.moneda}</option>`;
+  });
+}
+
+function autocompletarPrecio() {
+  const sel = document.getElementById('f-servicio-sel');
+  const opt = sel.options[sel.selectedIndex];
+  if (!opt.value) return;
+  document.getElementById('f-servicio').value = opt.text.split(' — ')[0];
+  document.getElementById('f-venta').value = opt.dataset.venta;
+  document.getElementById('f-moneda').value = opt.dataset.moneda;
+}
+
+async function guardarCliente() {
+  if (!SB) { alert('Conectá Supabase primero'); return; }
+  const id      = document.getElementById('f-id').value;
+  const nombre  = document.getElementById('f-nombre').value.trim();
+  const tel     = document.getElementById('f-tel').value.trim();
+  const pais    = document.getElementById('f-pais').value;
+  const estado  = document.getElementById('f-estado').value;
+  const notas   = document.getElementById('f-notas').value.trim();
+  const servicio= document.getElementById('f-servicio').value.trim();
+  const venta   = parseFloat(document.getElementById('f-venta').value) || 0;
+  const moneda  = document.getElementById('f-moneda').value;
+  const inicio  = document.getElementById('f-inicio').value;
+  const venc    = document.getElementById('f-venc').value;
+  const correo  = document.getElementById('f-correo').value.trim();
+
+  if (!nombre) { alert('El nombre es obligatorio'); return; }
+
+  if (id) {
+    // EDITAR
+    await SB.from('clientes').update({ nombre, telefono:tel, pais, estado, notas }).eq('id', id);
+    const subs = (todosClientes.find(c=>c.id==id)?.suscripciones||[]);
+    if (subs.length && servicio) {
+      await SB.from('suscripciones').update({
+        servicio, venta, moneda_venta:moneda,
+        fecha_inicio: inicio||null, fecha_vencimiento: venc||null
+      }).eq('id', subs[0].id);
+    }
+    await SB.from('movimientos').insert({ tipo:'edicion', cliente_id:parseInt(id), descripcion:`Edición de cliente ${nombre}` });
+  } else {
+    // NUEVO
+    const { data: c } = await SB.from('clientes').insert({ nombre, telefono:tel, pais, estado, notas }).select().single();
+    if (c && servicio) {
+      let cuenta_id = null;
+      if (correo) {
+        const { data: cu } = await SB.from('cuentas').select('id').eq('correo', correo).maybeSingle();
+        if (cu) cuenta_id = cu.id;
+        else {
+          const { data: ncu } = await SB.from('cuentas').insert({ correo, servicio }).select().single();
+          cuenta_id = ncu?.id;
+        }
+      }
+      await SB.from('suscripciones').insert({
+        cliente_id: c.id, cuenta_id, servicio,
+        fecha_inicio: inicio||null, fecha_vencimiento: venc||null,
+        venta, moneda_venta: moneda, estado,
+      });
+      await SB.from('movimientos').insert({ tipo:'alta', cliente_id:c.id, descripcion:`Alta de ${nombre} — ${servicio}` });
+    }
+  }
+  cerrarModal('modal-cliente');
+  await cargarClientes();
+  actualizarDashboard();
+}
+
+// ── SUSCRIPCIONES ─────────────────────────────────────────
 async function cargarSuscripciones() {
   const { data } = await SB.from('suscripciones')
-    .select('*, clientes(nombre, telefono), cuentas(correo, costo_proveedor)')
+    .select('*, clientes(nombre,telefono), cuentas(correo,costo_proveedor)')
     .order('fecha_vencimiento');
   if (!data) return;
+  todasSus = data;
+  filtrarSuscripciones();
+}
 
-  const hoy = new Date();
-  const tbody = document.getElementById('tbody-suscripciones');
-  tbody.innerHTML = data.map(s => {
-    const dias = s.fecha_vencimiento ? Math.ceil((new Date(s.fecha_vencimiento) - hoy) / 86400000) : null;
-    const dPill = dias === null ? '—'
-      : dias < 0 ? `<span class="pill p-d">${dias}d</span>`
-      : dias <= 7 ? `<span class="pill p-w">${dias}d</span>`
-      : `<span class="pill p-ok">${dias}d</span>`;
+function filtrarSuscripciones() {
+  const q = document.getElementById('fil-sus-q').value.toLowerCase();
+  const est = document.getElementById('fil-sus-estado').value;
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  let lista = todasSus.filter(s => {
+    const matchQ = !q || s.clientes?.nombre?.toLowerCase().includes(q)
+                      || s.servicio?.toLowerCase().includes(q)
+                      || s.cuentas?.correo?.toLowerCase().includes(q);
+    let matchE = true;
+    if (est === 'Activo') matchE = s.estado === 'Activo';
+    else if (est === 'vencido') matchE = s.fecha_vencimiento && new Date(s.fecha_vencimiento) < hoy;
+    return matchQ && matchE;
+  });
+  document.getElementById('tbl-sus-info').textContent = `Mostrando ${lista.length} de ${todasSus.length} suscripciones`;
+  const tbody = document.getElementById('tbody-sus');
+  tbody.innerHTML = lista.map(s => {
+    const dias = s.fecha_vencimiento ? Math.ceil((new Date(s.fecha_vencimiento) - hoy)/86400000) : null;
+    const dPill = dias===null?'—':dias<0?`<span class="pill p-d">${dias}d</span>`:dias<=7?`<span class="pill p-w">${dias}d</span>`:`<span class="pill p-ok">${dias}d</span>`;
     const gan = (parseFloat(s.venta)||0) - (parseFloat(s.cuentas?.costo_proveedor)||0);
     return `<tr>
       <td>${s.clientes?.nombre||'—'}</td>
-      <td>${s.servicio||'—'}</td>
-      <td style="font-family:monospace;font-size:11px">${s.cuentas?.correo||'—'}</td>
-      <td>${s.fecha_vencimiento||'—'}</td>
+      <td style="font-size:11px">${s.servicio||'—'}</td>
+      <td style="font-family:monospace;font-size:10px;overflow:hidden;text-overflow:ellipsis">${s.cuentas?.correo||'—'}</td>
+      <td style="font-size:11px">${s.fecha_vencimiento||'—'}</td>
       <td>${dPill}</td>
       <td>$${parseFloat(s.venta||0).toLocaleString()}</td>
       <td>$${parseFloat(s.cuentas?.costo_proveedor||0).toLocaleString()}</td>
       <td style="color:${gan>=0?'var(--accent)':'var(--danger)'}">$${gan.toLocaleString()}</td>
       <td><span class="pill ${s.estado==='Activo'?'p-ok':'p-d'}">${s.estado||'—'}</span></td>
     </tr>`;
-  }).join('') || '<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:24px">Sin suscripciones</td></tr>';
+  }).join('') || '<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:28px">Sin resultados</td></tr>';
+
+  const venc7 = todasSus.filter(s => {
+    if (!s.fecha_vencimiento) return false;
+    const d = Math.ceil((new Date(s.fecha_vencimiento) - hoy)/86400000);
+    return d >= 0 && d <= 7;
+  }).length;
+  const vencidos = todasSus.filter(s => s.fecha_vencimiento && new Date(s.fecha_vencimiento) < hoy).length;
+  document.getElementById('badge-venc').textContent = venc7 + vencidos;
 }
 
-// ============================================================
-// PROVEEDORES
-// ============================================================
+// ── PRECIOS ───────────────────────────────────────────────
+async function cargarPrecios() {
+  try {
+    const { data } = await SB.from('precios_servicios').select('*').order('servicio');
+    todosPrecios = data || [];
+  } catch(e) { todosPrecios = []; }
+  renderPrecios();
+  document.getElementById('est-precios').textContent = todosPrecios.length;
+}
+
+function renderPrecios() {
+  const grid = document.getElementById('precios-grid');
+  if (!todosPrecios.length) {
+    grid.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:20px;grid-column:1/-1">No hay precios cargados aún. Hacé click en "Nuevo servicio" para agregar.</div>';
+    return;
+  }
+  grid.innerHTML = todosPrecios.map(p => {
+    const gan = (parseFloat(p.venta)||0) - (parseFloat(p.costo)||0);
+    const pct = p.venta > 0 ? Math.round(gan / p.venta * 100) : 0;
+    return `<div class="precio-card">
+      <div class="precio-info">
+        <div class="servicio">${p.servicio} ${p.es_combo?'<span class="pill p-b" style="font-size:9px">COMBO</span>':''}</div>
+        <div class="moneda">${p.moneda} ${p.descripcion ? '· ' + p.descripcion : ''}</div>
+      </div>
+      <div class="precio-nums">
+        <div class="venta">$${parseFloat(p.venta||0).toLocaleString()}</div>
+        <div class="costo">Costo: $${parseFloat(p.costo||0).toLocaleString()}</div>
+        <div class="ganancia">Margen: $${gan.toLocaleString()} (${pct}%)</div>
+      </div>
+      <div class="precio-actions">
+        <button class="icon-btn edit" onclick="editarPrecio(${p.id})" title="Editar"><i class="ti ti-edit"></i></button>
+        <button class="icon-btn del" onclick="eliminarPrecio(${p.id},'${p.servicio}')" title="Eliminar"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function abrirNuevoPrecio() {
+  document.getElementById('p-id').value = '';
+  document.getElementById('precio-titulo').innerHTML = 'Nuevo servicio <button onclick="cerrarModal(\'modal-precio\')"><i class="ti ti-x"></i></button>';
+  ['p-servicio','p-slug','p-desc'].forEach(id => document.getElementById(id).value = '');
+  ['p-venta','p-costo'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('p-moneda').value = 'ARS';
+  document.getElementById('p-combo').value = 'false';
+  document.getElementById('modal-precio').classList.add('open');
+}
+
+function editarPrecio(id) {
+  const p = todosPrecios.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('p-id').value = id;
+  document.getElementById('precio-titulo').innerHTML = `Editar precio <button onclick="cerrarModal('modal-precio')"><i class="ti ti-x"></i></button>`;
+  document.getElementById('p-servicio').value = p.servicio || '';
+  document.getElementById('p-slug').value = p.slug || '';
+  document.getElementById('p-venta').value = p.venta || '';
+  document.getElementById('p-costo').value = p.costo || '';
+  document.getElementById('p-moneda').value = p.moneda || 'ARS';
+  document.getElementById('p-combo').value = p.es_combo ? 'true' : 'false';
+  document.getElementById('p-desc').value = p.descripcion || '';
+  document.getElementById('modal-precio').classList.add('open');
+}
+
+async function guardarPrecio() {
+  if (!SB) { alert('Conectá Supabase primero'); return; }
+  const id      = document.getElementById('p-id').value;
+  const servicio= document.getElementById('p-servicio').value.trim();
+  const slug    = document.getElementById('p-slug').value.trim() || servicio.toLowerCase().replace(/[^a-z0-9]/g,'_');
+  const venta   = parseFloat(document.getElementById('p-venta').value) || 0;
+  const costo   = parseFloat(document.getElementById('p-costo').value) || 0;
+  const moneda  = document.getElementById('p-moneda').value;
+  const combo   = document.getElementById('p-combo').value === 'true';
+  const desc    = document.getElementById('p-desc').value.trim();
+  if (!servicio) { alert('El nombre del servicio es obligatorio'); return; }
+  const payload = { servicio, slug, venta, costo, moneda, es_combo:combo, descripcion:desc };
+  if (id) await SB.from('precios_servicios').update(payload).eq('id', id);
+  else await SB.from('precios_servicios').insert(payload);
+  cerrarModal('modal-precio');
+  await cargarPrecios();
+}
+
+async function eliminarPrecio(id, nombre) {
+  if (!confirm(`¿Eliminar el precio de "${nombre}"?`)) return;
+  await SB.from('precios_servicios').delete().eq('id', id);
+  await cargarPrecios();
+}
+
+// ── CUENTAS ───────────────────────────────────────────────
+async function cargarCuentas() {
+  const { data } = await SB.from('cuentas').select('*, proveedores(nombre)').order('correo');
+  if (!data) return;
+  const tbody = document.getElementById('tbody-cuentas');
+  tbody.innerHTML = data.map(c => `<tr>
+    <td style="font-family:monospace;font-size:11px">${c.correo||'—'}</td>
+    <td>${c.servicio||'—'}</td>
+    <td><span class="pill ${c.tipo==='propia'?'p-ok':'p-b'}">${c.tipo||'—'}</span></td>
+    <td>${c.capacidad_total||1}</td>
+    <td>${c.proveedores?.nombre||'—'}</td>
+    <td style="font-size:11px">${c.fecha_renovacion||'—'}</td>
+    <td>$${parseFloat(c.costo_proveedor||0).toLocaleString()}</td>
+    <td><button class="icon-btn edit" title="Editar"><i class="ti ti-edit"></i></button></td>
+  </tr>`).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:28px">Sin cuentas</td></tr>';
+}
+
+// ── PROVEEDORES ───────────────────────────────────────────
 async function cargarProveedores() {
   const { data } = await SB.from('proveedores').select('*');
   if (!data) return;
-  const tbody = document.getElementById('tbody-proveedores');
-  tbody.innerHTML = data.map(p => `<tr>
-    <td>${p.nombre}</td>
+  document.getElementById('tbody-prov').innerHTML = data.map(p => `<tr>
+    <td style="font-weight:500">${p.nombre}</td>
     <td>${p.servicio||'—'}</td>
     <td>${p.contacto||'—'}</td>
-    <td>—</td><td>—</td><td>—</td>
-    <td><span class="pill p-ok">Al día</span></td>
-  </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:24px">Sin proveedores</td></tr>';
+    <td>—</td>
+    <td style="font-size:11px;color:var(--text3)">${p.notas||'—'}</td>
+    <td><button class="icon-btn edit" title="Editar"><i class="ti ti-edit"></i></button></td>
+  </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:28px">Sin proveedores</td></tr>';
 }
 
-// ============================================================
-// TIPO DE CAMBIO
-// ============================================================
+// ── TIPO DE CAMBIO ────────────────────────────────────────
 async function cargarTC() {
-  const { data } = await SB.from('tipo_cambio').select('*').order('fecha', { ascending: false }).limit(10);
-  if (!data || !data.length) return;
-  const ultimo = data[0];
-  USD_ARS = parseFloat(ultimo.usd_ars);
-  USD_UYU = parseFloat(ultimo.usd_uyu);
-  document.getElementById('tc-ars').textContent = '$' + USD_ARS.toLocaleString();
+  const { data } = await SB.from('tipo_cambio').select('*').order('fecha',{ascending:false}).limit(10);
+  if (!data?.length) return;
+  const u = data[0];
+  USD_ARS = parseFloat(u.usd_ars);
+  USD_UYU = parseFloat(u.usd_uyu);
+  document.getElementById('tc-ars').textContent = '$' + USD_ARS.toLocaleString('es-AR');
   document.getElementById('tc-uyu').textContent = USD_UYU.toFixed(2);
-  document.getElementById('tc-cross').textContent = (USD_UYU / USD_ARS).toFixed(4);
-  document.getElementById('tc-fecha').textContent = new Date(ultimo.fecha).toLocaleDateString('es-AR');
-
-  // estimativos financieros
-  const { data: subs } = await SB.from('suscripciones').select('venta, moneda_venta, cuentas(costo_proveedor)').eq('estado','Activo');
-  if (subs) {
-    let venta = 0, costo = 0;
-    subs.forEach(s => {
-      let v = parseFloat(s.venta || 0);
-      if (s.moneda_venta === 'UYU') v = v / USD_UYU * USD_ARS;
-      venta += v;
-      costo += parseFloat(s.cuentas?.costo_proveedor || 0);
-    });
-    const gan = venta - costo;
-    document.getElementById('est-venta').textContent = '$' + Math.round(venta).toLocaleString('es-AR');
-    document.getElementById('est-costo').textContent = '$' + Math.round(costo).toLocaleString('es-AR');
-    document.getElementById('est-ganancia').textContent = '$' + Math.round(gan).toLocaleString('es-AR');
-    document.getElementById('est-usd').textContent = 'USD ' + (gan / USD_ARS).toFixed(1);
-    document.getElementById('p-cobrado').textContent = '$' + Math.round(venta).toLocaleString('es-AR');
-    document.getElementById('p-gasto').textContent = '$' + Math.round(costo).toLocaleString('es-AR');
-    document.getElementById('p-ganancia').textContent = '$' + Math.round(gan).toLocaleString('es-AR');
-    document.getElementById('p-usd').textContent = 'USD ' + (gan / USD_ARS).toFixed(1);
-  }
+  document.getElementById('tc-cross').textContent = (USD_UYU/USD_ARS).toFixed(4);
+  document.getElementById('tc-fecha').textContent = new Date(u.fecha+'T12:00:00').toLocaleDateString('es-AR');
+  document.getElementById('tc-historial').innerHTML = data.map(d => `
+    <div class="dolar-row">
+      <span>${new Date(d.fecha+'T12:00:00').toLocaleDateString('es-AR')}</span>
+      <span>ARS $${parseFloat(d.usd_ars).toLocaleString()}</span>
+      <span>UYU ${parseFloat(d.usd_uyu).toFixed(2)}</span>
+      <span class="pill p-g">Manual</span>
+    </div>`).join('');
+  actualizarFinanciero();
 }
 
 async function guardarTC() {
   if (!SB) return;
   const ars = parseFloat(document.getElementById('tc-inp-ars').value);
   const uyu = parseFloat(document.getElementById('tc-inp-uyu').value);
-  if (!ars || !uyu) return;
+  if (!ars || !uyu) { alert('Completá ambos valores'); return; }
   const hoy = new Date().toISOString().split('T')[0];
-  await SB.from('tipo_cambio').upsert({ fecha: hoy, usd_ars: ars, usd_uyu: uyu }, { onConflict: 'fecha' });
+  await SB.from('tipo_cambio').upsert({fecha:hoy,usd_ars:ars,usd_uyu:uyu},{onConflict:'fecha'});
   await cargarTC();
 }
 
-// ============================================================
-// MODAL NUEVO CLIENTE
-// ============================================================
-function abrirModal() { document.getElementById('modal-cliente').classList.add('open'); }
-function cerrarModal() { document.getElementById('modal-cliente').classList.remove('open'); }
+// ── DASHBOARD ─────────────────────────────────────────────
+function actualizarDashboard() {
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const en7 = new Date(hoy.getTime() + 7*86400000);
+  const total = todosClientes.length;
+  const activos = todosClientes.filter(c => c.estado==='Activo').length;
+  const semana = todasSus.filter(s => {
+    if (!s.fecha_vencimiento) return false;
+    const d = new Date(s.fecha_vencimiento);
+    return d >= hoy && d <= en7;
+  }).length;
+  const vencidos = todasSus.filter(s => s.fecha_vencimiento && new Date(s.fecha_vencimiento) < hoy).length;
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('s-activos').textContent = activos;
+  document.getElementById('s-semana').textContent = semana;
+  document.getElementById('s-vencidos').textContent = vencidos;
+  document.getElementById('badge-venc').textContent = semana + vencidos;
 
-async function guardarCliente() {
-  if (!SB) { alert('Conectá Supabase primero'); return; }
-  const nombre   = document.getElementById('f-nombre').value.trim();
-  const telefono = document.getElementById('f-tel').value.trim();
-  const pais     = document.getElementById('f-pais').value;
-  const estado   = document.getElementById('f-estado').value;
-  const servicio = document.getElementById('f-servicio').value.trim();
-  const venta    = parseFloat(document.getElementById('f-venta').value) || 0;
-  const venc     = document.getElementById('f-venc').value;
-  const correo   = document.getElementById('f-correo').value.trim();
-  const notas    = document.getElementById('f-notas').value.trim();
+  // Alertas
+  const alerts = document.getElementById('dash-alerts');
+  alerts.innerHTML = '';
+  if (vencidos) alerts.innerHTML += `<div class="alert alert-d"><i class="ti ti-alert-circle" style="font-size:16px"></i> <strong>${vencidos} suscripciones vencidas</strong> sin renovar. Revisalas en Suscripciones.</div>`;
+  if (semana) alerts.innerHTML += `<div class="alert alert-w"><i class="ti ti-clock" style="font-size:16px"></i> <strong>${semana} suscripciones vencen en los próximos 7 días.</strong></div>`;
 
-  if (!nombre) { alert('El nombre es obligatorio'); return; }
-
-  const { data: c } = await SB.from('clientes').insert({ nombre, telefono, pais, estado, notas }).select().single();
-  if (c && servicio) {
-    // buscar o crear cuenta
-    let cuenta_id = null;
-    if (correo) {
-      const { data: cu } = await SB.from('cuentas').select('id').eq('correo', correo).single();
-      if (cu) {
-        cuenta_id = cu.id;
-      } else {
-        const { data: ncu } = await SB.from('cuentas').insert({ correo, servicio }).select().single();
-        cuenta_id = ncu?.id;
-      }
-    }
-    await SB.from('suscripciones').insert({
-      cliente_id: c.id, cuenta_id, servicio,
-      fecha_vencimiento: venc || null,
-      venta, moneda_venta: pais === 'Uruguay' ? 'UYU' : 'ARS',
-      estado,
-    });
-    await SB.from('movimientos').insert({
-      tipo: 'alta', cliente_id: c.id, cuenta_id,
-      descripcion: `Alta de cliente ${nombre} — ${servicio}`,
-    });
-  }
-
-  cerrarModal();
-  await cargarTodo();
+  // Próximos vencimientos
+  const proximos = todasSus
+    .filter(s => s.fecha_vencimiento && new Date(s.fecha_vencimiento) >= hoy)
+    .sort((a,b) => new Date(a.fecha_vencimiento) - new Date(b.fecha_vencimiento))
+    .slice(0, 8);
+  document.getElementById('dash-venc').innerHTML = proximos.length
+    ? proximos.map(s => {
+        const dias = Math.ceil((new Date(s.fecha_vencimiento) - hoy)/86400000);
+        const col = dias<=3?'var(--danger)':dias<=7?'var(--warn)':'var(--accent)';
+        return `<div class="venc-item"><span>${s.clientes?.nombre||'?'} <span style="color:var(--text3);font-size:11px">· ${s.servicio||''}</span></span><span style="color:${col};font-weight:600">${dias}d · ${new Date(s.fecha_vencimiento).toLocaleDateString('es-AR')}</span></div>`;
+      }).join('')
+    : '<div style="color:var(--text3);font-size:12px">Sin vencimientos próximos</div>';
 }
 
-// ============================================================
-// CHAT IA
-// ============================================================
+// ── FINANCIERO ────────────────────────────────────────────
+function actualizarFinanciero() {
+  let venta = 0, costo = 0;
+  todasSus.forEach(s => {
+    let v = parseFloat(s.venta||0);
+    if (s.moneda_venta === 'UYU') v = v / USD_UYU * USD_ARS;
+    venta += v;
+    costo += parseFloat(s.cuentas?.costo_proveedor||0);
+  });
+  const gan = venta - costo;
+  // Dashboard
+  document.getElementById('dash-finanzas').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Venta mensual est.</div><div style="font-size:20px;font-weight:700;color:var(--accent)">$${Math.round(venta).toLocaleString('es-AR')}</div></div>
+      <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Costo proveedores</div><div style="font-size:20px;font-weight:700;color:var(--danger)">$${Math.round(costo).toLocaleString('es-AR')}</div></div>
+      <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Ganancia neta ARS</div><div style="font-size:20px;font-weight:700;color:var(--accent)">$${Math.round(gan).toLocaleString('es-AR')}</div></div>
+      <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">En dólares</div><div style="font-size:20px;font-weight:700;color:var(--accent2)">USD ${(gan/USD_ARS).toFixed(1)}</div></div>
+    </div>`;
+  // Estadísticas
+  ['est-venta','p-cobrado'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent='$'+Math.round(venta).toLocaleString('es-AR'); });
+  ['est-costo','p-gasto'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent='$'+Math.round(costo).toLocaleString('es-AR'); });
+  ['est-ganancia','p-gan'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent='$'+Math.round(gan).toLocaleString('es-AR'); });
+  ['est-usd','p-usd'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent='USD '+(gan/USD_ARS).toFixed(1); });
+}
+
+// ── ESTADÍSTICAS ──────────────────────────────────────────
+function actualizarEstadisticas() {
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  // País
+  const arg = todosClientes.filter(c => c.pais==='Argentina').length;
+  const uru = todosClientes.filter(c => c.pais==='Uruguay').length;
+  document.getElementById('est-arg').textContent = arg;
+  document.getElementById('est-uru').textContent = uru;
+
+  // Semanas
+  const sems = [0,0,0,0];
+  todasSus.forEach(s => {
+    if (!s.fecha_vencimiento) return;
+    const diff = Math.ceil((new Date(s.fecha_vencimiento) - hoy)/86400000);
+    if (diff>=0  && diff<=7)  sems[0]++;
+    if (diff>=8  && diff<=14) sems[1]++;
+    if (diff>=15 && diff<=21) sems[2]++;
+    if (diff>=22 && diff<=30) sems[3]++;
+  });
+  const maxS = Math.max(...sems, 1);
+  sems.forEach((v,i) => {
+    const n = i+1;
+    const el = document.getElementById(`sem${n}-n`);
+    const bar = document.getElementById(`sem${n}-b`);
+    if (el) el.textContent = v;
+    if (bar) bar.style.height = Math.max(8, Math.round(v/maxS*90)) + 'px';
+  });
+
+  // Servicios
+  const servCount = {};
+  todasSus.forEach(s => {
+    const k = (s.servicio||'sin definir').toLowerCase().trim();
+    servCount[k] = (servCount[k]||0) + 1;
+  });
+  const sorted = Object.entries(servCount).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const maxV = sorted[0]?.[1] || 1;
+  const colors = ['#e24b4a','#185fa5','#1d9e75','#534ab7','#639922','#ba7517','#993556','#888780'];
+  document.getElementById('est-servicios').innerHTML = sorted.map(([k,v],i) => `
+    <div class="bar-row">
+      <span class="bar-lbl">${k}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.max(8,Math.round(v/maxV*100))}%;background:${colors[i]||'#888'}"><span>${v}</span></div></div>
+    </div>`).join('') || '<div style="color:var(--text3)">Sin datos</div>';
+
+  actualizarFinanciero();
+}
+
+// ── CHAT IA ───────────────────────────────────────────────
 function addMsg(text, role) {
   const msgs = document.getElementById('chat-msgs');
   const div = document.createElement('div');
   div.className = 'msg msg-' + role;
-  div.innerHTML = text.replace(/\n/g, '<br>');
+  div.innerHTML = text.replace(/\n/g,'<br>');
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
   return div;
 }
 
-async function enviarChat(texto) {
-  nav('chat');
-  document.getElementById('chat-in').value = texto;
-  await new Promise(r => setTimeout(r, 50));
-  enviarChatBtn();
-}
+function enviarChat(txt) { nav('chat'); document.getElementById('chat-in').value = txt; setTimeout(enviarChatBtn,80); }
 
 async function enviarChatBtn() {
   const input = document.getElementById('chat-in');
-  const texto = input.value.trim();
-  if (!texto) return;
+  const txt = input.value.trim();
+  if (!txt) return;
   input.value = '';
+  addMsg(txt, 'user');
+  chatHistory.push({role:'user', content:txt});
+  const typing = addMsg('<div class="typing-dots"><span></span><span></span><span></span></div>', 'ai');
 
-  addMsg(texto, 'user');
-  chatHistory.push({ role: 'user', content: texto });
-
-  const typingDiv = addMsg('<div class="typing-dots"><span></span><span></span><span></span></div>', 'ai');
-
-  // contexto de la BD para el prompt
-  let contexto = 'Sos el asistente de gestión de MISAKROOS, un negocio de reventa de suscripciones digitales en Argentina y Uruguay.\n\n';
+  let sistema = 'Sos el asistente de gestión de MISAKROOS, negocio de reventa de suscripciones digitales en Argentina y Uruguay. Respondé en español rioplatense, de forma concisa y útil.\n\n';
   if (SB) {
     try {
-      const { data: resumen } = await SB.from('v_suscripciones_detalle').select('cliente,servicio,dias_restantes,venta,ganancia_bruta,estado').limit(200);
-      if (resumen) contexto += 'Datos actuales de suscripciones:\n' + JSON.stringify(resumen.slice(0,50)) + '\n\n';
-      const { data: libres } = await SB.from('v_perfiles_libres').select('*');
-      if (libres?.length) contexto += `Perfiles libres: ${libres.length} perfil(es) sin asignar.\n`;
+      const hoy = new Date().toISOString().split('T')[0];
+      const en7 = new Date(Date.now()+7*86400000).toISOString().split('T')[0];
+      const resumen = {
+        total_clientes: todosClientes.length,
+        activos: todosClientes.filter(c=>c.estado==='Activo').length,
+        argentina: todosClientes.filter(c=>c.pais==='Argentina').length,
+        uruguay: todosClientes.filter(c=>c.pais==='Uruguay').length,
+        suscripciones_total: todasSus.length,
+        vencen_esta_semana: todasSus.filter(s=>s.fecha_vencimiento&&s.fecha_vencimiento>=hoy&&s.fecha_vencimiento<=en7).length,
+        vencidos: todasSus.filter(s=>s.fecha_vencimiento&&s.fecha_vencimiento<hoy).length,
+        usd_ars: USD_ARS, usd_uyu: USD_UYU,
+        precios_cargados: todosPrecios.length,
+      };
+      sistema += 'Resumen de datos actuales:\n' + JSON.stringify(resumen,null,2);
+      sistema += '\n\nSuscripciones próximas a vencer (primeras 20):\n';
+      const prox = todasSus.filter(s=>s.fecha_vencimiento).sort((a,b)=>new Date(a.fecha_vencimiento)-new Date(b.fecha_vencimiento)).slice(0,20);
+      sistema += prox.map(s=>`${s.clientes?.nombre} — ${s.servicio} — vence ${s.fecha_vencimiento}`).join('\n');
     } catch(e) {}
-  } else {
-    contexto += 'IMPORTANTE: Supabase no está conectado. Indicale al usuario que conecte la base primero. Podés usar los datos de muestra conocidos (203 clientes, Netflix 100, Flujo 48, Disney 25).\n';
   }
 
   if (CLAUDE_KEY) {
     try {
       const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': CLAUDE_KEY, 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          system: contexto,
-          messages: chatHistory,
-        })
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':CLAUDE_KEY,'anthropic-version':'2023-06-01'},
+        body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, system:sistema, messages:chatHistory })
       });
       const d = await res.json();
-      const respuesta = d.content?.[0]?.text || 'No pude obtener respuesta.';
-      typingDiv.innerHTML = respuesta.replace(/\n/g, '<br>');
-      chatHistory.push({ role: 'assistant', content: respuesta });
-    } catch(e) {
-      typingDiv.innerHTML = 'Error al conectar con Claude API. Verificá tu API key.';
-    }
+      const resp = d.content?.[0]?.text || 'Sin respuesta.';
+      typing.innerHTML = resp.replace(/\n/g,'<br>');
+      chatHistory.push({role:'assistant', content:resp});
+    } catch(e) { typing.innerHTML = 'Error al conectar con Claude API.'; }
   } else {
-    // respuestas locales de muestra
-    await new Promise(r => setTimeout(r, 800));
-    const t = texto.toLowerCase();
-    let r = '';
-    if (t.includes('venc') && t.includes('semana')) r = '⚠️ Esta semana vencen aproximadamente 61 clientes (datos del Sheets original). Los más urgentes: Gustavo (05/06), Jesica (05/06), Emanuel (05/06), Martin (05/06).';
-    else if (t.includes('perfil') && t.includes('libre')) r = '🔴 Detecté correos reutilizados en múltiples clientes. Una vez conectado Supabase podré decirte los perfiles exactos libres en tiempo real.';
-    else if (t.includes('gan') || t.includes('mes')) r = '💰 Estimativo mayo 2026:\n• Venta: ~$487.200 ARS\n• Costo: ~$325.800 ARS\n• Ganancia: ~$161.400 ARS (USD 128)\n\nConectá tu API key de Claude para respuestas con datos reales de Supabase.';
-    else if (t.includes('vencid')) r = '⚠️ Clientes vencidos detectados en tu Sheets:\n• Martin (-4 días)\n• Abi (-4 días)\n• Nahuel (-2 días)\n• Piriz (-6 días)\n• Eli (-24 días)\n\nContactalos hoy.';
-    else r = 'Para respuestas en tiempo real con tus datos reales, cargá tu Claude API key en la configuración de arriba. Puedo acceder a tu Supabase y darte información exacta.';
-    typingDiv.innerHTML = r.replace(/\n/g, '<br>');
-    chatHistory.push({ role: 'assistant', content: r });
+    await new Promise(r=>setTimeout(r,700));
+    typing.innerHTML = 'Para respuestas inteligentes en tiempo real, cargá tu Claude API key en la barra de configuración de arriba.';
+    chatHistory.push({role:'assistant', content:typing.innerHTML});
   }
-
   document.getElementById('chat-msgs').scrollTop = 99999;
 }
 
-// Cerrar modal al clickear fuera
-document.getElementById('modal-cliente').addEventListener('click', function(e) {
-  if (e.target === this) cerrarModal();
-});
+// ── UTILS ─────────────────────────────────────────────────
+function cerrarModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-bg').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); }));
 </script>
 </body>
 </html>
